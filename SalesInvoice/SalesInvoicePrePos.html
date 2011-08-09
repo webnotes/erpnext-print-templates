@@ -1,0 +1,116 @@
+<script type="text/javascript">// <![CDATA[
+// ********************************************** get other charges ************************************************** 
+  // -------------
+  // convert rate
+  // -------------
+  function convert_rate(val){
+    var new_val = flt(val)/flt(doc.conversion_rate);
+    return new_val;
+  }
+
+  // -----------------------
+  // make other charges row
+  // -----------------------
+  var make_ot_row = function(title, rate, val, type, top){
+    return '<tr><td style="position: absolute; top: '+top+'cm; left: 0cm; width: 8cm">'+title+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 8.3cm;">'+(type != 'Actual' ? rate+'%' : '')+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 11.6cm;">'+val+'</td>'
+              +'</tr>'
+  }
+  
+  // ------------------
+  // get other charges
+  // ------------------
+  function get_other_charges(){
+    var cl = getchildren('RV Tax Detail',doc.name,'other_charges');
+    var out='';
+    out +='<table class="noborder" style="width:100%">'
+          +make_ot_row('Net Total','',fmt_money(convert_rate(doc.net_total)),'Actual',0);
+    var top = 0
+    if(cl.length){
+      for(var i=0;i<cl.length;i++){
+        out += make_ot_row(cl[i].description,cl[i].rate, fmt_money(convert_rate(cl[i].tax_amount)), cl[i].charge_type, top + 0.5);
+        top += 0.5;
+      }
+    }
+    out +=make_ot_row('Grand Total','', fmt_money(doc.grand_total_export), 'Actual', top+0.5)
+    out +='</table>'; 
+    return out;
+  }
+
+
+// ********************************************** get item details **************************************************
+  // ---------
+  // make row
+  // ---------
+  var make_row = function(val, top){
+    var bstart = '<b>'; var bend = '</b>';
+    return ret = '<tr><td style="position: absolute; top: '+top+'cm; left: 0cm;">'+cstr(val[0])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 1.1cm;">'+cstr(val[1])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 8.25cm; width: 16cm; text-align: justify">'+cstr(val[2])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 25cm;">'+cstr(val[3])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 26.7cm;">'+cstr(val[4])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 28.7cm;">'+cstr(val[5])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 33.3cm;">'+cstr(val[6])+'</td>'
+              +'</tr>';
+  }
+
+  // -----------------
+  // get item details
+  // -----------------
+  function get_item_details(){
+    var cl = getchildren('RV Detail',doc.name,'entries');
+    var out='';
+    out +='<table class="noborder" style="width:100%">'
+    var start = 0;
+    if(cl.length){
+      for(var i=0;i<cl.length;i++){
+        out += make_row([cl[i].idx, cl[i].item_code, cl[i].description, cl[i].stock_uom, cl[i].qty, cl[i].export_rate, cl[i].export_amount],start);
+        start += 2;
+      }
+    }
+    out +='</table>'; 
+    return out;
+  }
+  
+// ]]></script>
+
+<div style="position: absolute; top: 4.00cm; left: 2.5cm; font-family: Draft 17 cpi;"><script type="text/javascript">doc.customer_name</script></div>
+<div style="position: absolute; top: 4.5cm; left: 2.5cm; width:8cm; font-family: Draft 17 cpi;"><script type="text/javascript">replace_newlines(doc.address_of_consignee)</script></div>
+<div style="position: absolute; top: 7.5cm; left: 5cm; font-family: Draft 17 cpi;"><script type="text/javascript">doc.your_order_number</script></div>
+<div style="position: absolute; top: 7.5cm; left: 17.5cm; font-family: Draft 17 cpi;"><script type="text/javascript">doc.your_order_date</script></div>
+
+<div style="position: absolute; top: 4cm; left: 27.5cm; font-family: Draft 17 cpi;"><script type="text/javascript">doc.name</script></div>
+<div style="position: absolute; top: 4.5cm; left: 27.5cm; font-family: Draft 17 cpi;"><script type="text/javascript">date.str_to_user(doc.voucher_date)</script></div>
+<div style="position: absolute; top: 5.5cm; left: 25.8cm; font-family: Draft 17 cpi;"><script type="text/javascript">doc.so_number</script></div>
+<div style="position: absolute; top: 5.5cm; left: 33.3cm; font-family: Draft 17 cpi;"><script type="text/javascript">doc.so_date</script></div>
+
+<div style="position: absolute; top: 8.5cm; left: 5.8cm; font-family: Draft 17 cpi;"><script type="text/javascript">replace_newlines(doc.payment_terms)</script></div>
+
+<!-- Item Details -->
+<div style="position: absolute; top: 11.5cm; left: 0.5cm; font-family: Draft 17 cpi;">
+	<table style="width: 100%;">
+		<tbody>
+			<tr>
+				<td>
+					<script type="text/javascript">get_item_details()</script>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<!-- Other Charges -->
+<div style="position: absolute; top: 19.5cm; left: 21.7cm; font-family: Draft 17 cpi;">
+	<table style="width: 100%;">
+		<tbody>
+			<tr>
+				<td>
+					<script type="text/javascript">get_other_charges()</script>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div style="position: absolute; top: 25.5cm; left: 4.2cm; font-family: Draft 17 cpi;"><script type="text/javascript">doc.in_words_export</script></div>
+<div style="position: absolute; top: 25.5cm; left: 30cm; font-family: Draft 17 cpi;"><script type="text/javascript">doc.rounded_total_export</script></div>

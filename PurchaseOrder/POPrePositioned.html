@@ -1,0 +1,139 @@
+<script type="text/javascript">// <![CDATA[
+// ********************************************** get item details **************************************************
+  
+  // -------------
+  // convert rate
+  // -------------
+  function convert_rate(val){
+    var new_val = flt(val)/flt(doc.conversion_rate);
+    return new_val;
+  }
+
+  // -----------------------
+  // make other charges row
+  // -----------------------
+  var make_ot_row = function(title, rate, val, type, top){
+    return '<tr><td style="position: absolute; top: '+top+'cm; left: 0cm; width :10cm; font: Draft 17 cpi; font-size: 9pt;">'+title+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 10.5cm; font: Draft 17 cpi; font-size: 9pt;">'+val+'</td>'
+              +'</tr>'
+  }
+
+  // ------------------
+  // get other charges
+  // ------------------
+  function get_other_charges(){
+    var cl = getchildren('Purchase Tax Detail',doc.name,'purchase_tax_details');
+    var out='<table>';
+    var top = 0
+    if(cl.length){
+      for(var i=0;i<cl.length;i++){
+        if(flt(cl[i].tax_amount) > 0){
+          out += make_ot_row(cl[i].description,cl[i].rate, fmt_money(convert_rate(cl[i].tax_amount)), cl[i].charge_type, top);
+          top += 0.5;
+        }
+      }
+    }
+    out +='</table>'; 
+    return out;
+  }
+
+  // ---------
+  // make row
+  // ---------
+  var make_row = function(val, top){
+    var bstart = '<b>'; var bend = '</b>';
+    return ret = '<tr><td style="position: absolute; top: '+top+'cm; left: 0cm; font: Draft 17 cpi; font-size: 9pt;">'+cstr(val[0])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 0.8cm; width: 3cm; font: Draft 17 cpi; font-size: 9pt;">'+cstr(val[1])+'</td>'
+
+              +'<td style="position: absolute; top: '+top+'cm; left: 4cm; width: 1.5cm; font: Draft 17 cpi; font-size: 9pt;">'+ cstr(val[2]).substring(cstr(val[2]).length-4,cstr(val[2]).length) +'</td>'
+
+              +'<td style="position: absolute; top: '+top+'cm; left: 7.95cm; width: 11cm; text-align: justify; font: Draft 17 cpi; font-size: 8pt;">'+replace_newlines(val[3])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 20cm; width: 2cm; font: Draft 17 cpi; font-size: 9pt;">'+cstr(val[4])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 22.8cm; font: Draft 17 cpi; font-size: 9pt;">'+cstr(val[5])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 24.7cm; font: Draft 17 cpi; font-size: 9pt;">'+cstr(val[6])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 28.2cm; font: Draft 17 cpi; font-size: 9pt;">'+cstr(val[7])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 33.4cm; font: Draft 17 cpi; font-size: 9pt;">'+cstr(val[8])+'</td>'
+              +'</tr>';
+  }
+
+
+  // -----------------
+  // get item details
+  // -----------------
+  function get_item_details(){
+    var cl = getchildren('PO Detail',doc.name,'po_details');
+    var out='';
+    out +='<table class="noborder" style="width:100%;">'
+    var start = 0;
+    if(cl.length){
+      for(var i=0;i<cl.length;i++){
+        out += make_row([cl[i].idx, cl[i].item_code, cl[i].project_name, cl[i].description, cl[i].qty, cl[i].uom, fmt_money(cl[i].list_price), cl[i].disc_per, fmt_money(cl[i].amount)], start);
+        start += 1;
+      }
+    }
+    out +='</table>'; 
+    return out;
+  }
+  
+// ]]></script>
+
+<div style="position: absolute; top: 4.5cm; left: 2.5cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">doc.supplier</script></div>
+<div style="position: absolute; top: 5.25cm; left: 1cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">doc.supplier_name</script></div>
+<div style="position: absolute; top: 5.75cm; left: 1cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">replace_newlines(doc.address_display)</script></div>
+
+<div style="position: absolute; top: 6.75cm; left: 18cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">doc.project_name</script></div>
+<div style="position: absolute; top: 7.60cm; left: 3.6cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">doc.vendor_reference</script></div>
+
+<div style="position: absolute; top: 4.5cm; left: 30.4cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">doc.name</script></div>
+<div style="position: absolute; top: 5cm; left: 30cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">date.str_to_user(doc.transaction_date)</script></div>
+<div style="position: absolute; top: 5.5cm; left: 30.4cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">doc.header_indent_no</script></div>
+<div style="position: absolute; top: 6cm; left: 30.4cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">date.str_to_user(doc.header_indent_date)</script></div>
+
+<!-- Item Details -->
+<div style="position: absolute; top: 9.5cm; left: 0.8cm;">
+	<script type="text/javascript">get_item_details()</script>
+</div>
+
+<div style="position: absolute; top: 19cm; left: 24.8cm;">
+	<table style="width: 100%;">
+		<tbody>		  
+			<tr>
+			 <td style="position: absolute; top: 0cm; left: 0cm; width :10cm; font: Draft 17 cpi;">Net Total</td>
+             <td style="position: absolute; top: 0cm; left: 10.5cm; width :10cm; font: Draft 17 cpi;"><script type="text/javascript">fmt_money(doc.net_total_import)</script></td>
+            </tr>
+		</tbody>
+	</table>
+</div>
+
+
+<!-- Other Charges -->
+<div style="position: absolute; top: 20cm; left: 24.8cm;">
+	<table style="width: 100%;">
+		<tbody>
+			<script type="text/javascript">get_other_charges()</script>
+		</tbody>
+	</table>
+</div>
+<div style="position: absolute; top: 22.5cm; left: 1.6cm; width: 5cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">replace_newlines(doc.payment_terms)</script></div>
+<div style="position: absolute; top: 22.5cm; left: 13.3cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">replace_newlines(doc.mode_of_dispatch)</script></div>
+<div style="position: absolute; top: 24.5cm; left: 5.8cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">replace_newlines(doc.instructions)</script></div>
+<div style="position: absolute; top: 25.5cm; left: 5.8cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">replace_newlines(doc.inspection)</script></div>
+<div style="position: absolute; top: 26.5cm; left: 5.8cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">replace_newlines(doc.test_certificate_required)</script></div>
+<div style="position: absolute; top: 27.5cm; left: 5.8cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">replace_newlines(doc.delivery_schedule)</script></div>
+<div style="position: absolute; top: 28.5cm; left: 5.8cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">doc.originated_by</script></div>
+
+<div style="position: absolute; top: 24.5cm; left: 24.2cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">doc.octroi</script></div>
+<div style="position: absolute; top: 25.5cm; left: 24.2cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">doc.insurance</script></div>
+<div style="position: absolute; top: 26.5cm; left: 24.2cm; font: Draft 17 cpi; font-size: 8pt;"><script type="text/javascript">doc.transport</script></div>
+
+<div style="position: absolute; top: 23.5cm; left: 28.3cm; font: Draft 17 cpi;">Grand Total</div>
+<div style="position: absolute; top: 23.5cm; left: 34.1cm; font: Draft 17 cpi;"><script type="text/javascript">fmt_money(doc.grand_total_import)</script></div>
+
+<div style="position: absolute; top: 24cm; left: 15cm; font: Draft 17 cpi; font-size: 8pt;"">
+	<table class="noborder" style="width:100%">
+		<tr>
+		 <td style="width:25%;text-align:left" nowrap><b>In Words</b></td>
+		 <td style="width:75%;text-align:left" nowrap><script type="text/javascript">doc.in_words_import</script></td>		 
+		</tr>
+	</table>
+</div>

@@ -1,0 +1,201 @@
+<html>
+  <head>
+  <style>.noborder td { border: 0px solid #fff; } </style>
+  <script>
+    var make_row = function(title,val,bold){
+    var bstart = '<b>'; var bend = '</b>';
+    return '<tr><td style="width:40%">'+(bold?bstart:'')+title+(bold?bend:'')+'</td>'
+              +'<td style="width:25%;text-align:right">'+val+'</td>'
+              +'</tr>'
+  }
+
+  function get_taxes_and_totals(){
+    var add_tax = getchildren('Purchase Tax Detail',doc.name,'purchase_tax_details');
+    //var ded_tax = getchildren('PV Ded Tax Detail',doc.name,'taxes');
+    var out='';
+    out +='<div><table class="noborder" >'
+          +make_row('Net Total',fmt_money(doc.net_total),1);
+    if(add_tax.length){
+      for(var i=0;i<add_tax.length;i++){
+        out += make_row(add_tax[i].account_head,fmt_money(add_tax[i].tax_amount),0);
+      }
+    }
+    /*if(ded_tax.length){
+      for(var i=0; i<ded_tax.length;i++){
+        out += make_row(ded_tax[i].tax_code,fmt_money(ded_tax[i].ded_amount),0);
+      }
+    }*/
+    out +=make_row(doc.tax_code,fmt_money(doc.ded_amount),1);
+    out +=make_row('Total Amount',fmt_money(doc.total_amount_to_pay),1);
+    out +='</table></div>'; 
+    return out;
+  }
+  
+  function get_letter_head(){
+    var cp = locals['Control Panel']['Control Panel'];
+  	if(cp.letter_head) {return cp.letter_head; }
+
+  }
+  //print distinct expense head from PV Detail
+  function get_expacct(){
+
+    var pur_tax_dtl = getchildren('PV Detail',doc.name,'entries');
+    exp_head =[];
+    str_exp_head = ''
+    for(var i=0;i<pur_tax_dtl.length;i++){
+      if(pur_tax_dtl[i].expense_head){
+        if(exp_head.indexOf(pur_tax_dtl[i].expense_head) == -1){
+          exp_head.push(pur_tax_dtl[i].expense_head); 
+          if(str_exp_head == '')
+            str_exp_head += pur_tax_dtl[i].expense_head;
+          else
+            str_exp_head += ', '+pur_tax_dtl[i].expense_head;
+        }
+      }
+    }
+    
+    return str_exp_head;
+  }
+ // print distinct cost center from PV Detail 
+ function get_cc(){
+
+    var pur_tax_dtl = getchildren('PV Detail',doc.name,'entries');
+    cost_cnt = [];
+    str_cost_cnt = '';
+    for(var i=0;i<pur_tax_dtl.length;i++){
+      if(pur_tax_dtl[i].cost_center){
+        if(cost_cnt.indexOf(pur_tax_dtl[i].cost_center) == -1){        
+          cost_cnt.push(pur_tax_dtl[i].cost_center); 
+          if(str_cost_cnt == '')
+            str_cost_cnt += pur_tax_dtl[i].cost_center;
+          else
+            str_cost_cnt += ', '+pur_tax_dtl[i].cost_center;
+        }
+      }
+    }
+    
+    return str_cost_cnt;
+  }
+    
+    
+
+  </script>
+  </head>
+  <body>
+    <div style="position: relative;">
+      <h3 align="center">XXXXXXXXXX.<br>
+xxxxxxxxxxxxxx
+      <br>
+      <hr>
+    </div>
+    <div>
+      <div style="font-size: large;">Purchase Invoice</div>
+      <table class = 'noborder' style = "width:100%;">
+        <tr>
+          <td style='width:50%;'>
+            <table class = 'noborder'>
+              <tr>
+                <td> Voucher No. : </td>
+                <td><b> <script>"<font size='3'>"+doc.name+"</font>"</script></font></b> </td>
+              </tr>
+            </table>
+          </td>
+          <td style='width:50%;'>
+            <table class = 'noborder'>
+              <tr>
+                <td> Voucher Date : </td>
+                <td> <script>date.str_to_user(doc.voucher_date)</script> </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style='width:50%;'>
+            <table class = 'noborder'>
+              <tr>
+                <td> Supplier : </td>
+                <td><b> <script>"<font size='3'>"+doc.credit_to+"</font>"</script></b> </td>
+              </tr>
+            </table>
+          </td>
+          <td style='width:50%;'>
+            <table class = 'noborder'>
+              <tr>
+                <td> Due Date : </td>
+                <td> <script>date.str_to_user(doc.due_date)</script> </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style='width:50%;'>
+            <table class = 'noborder'>
+              <tr>
+                <td> Bill No : </td>
+                <td> <script>doc.bill_no</script> </td>
+              </tr>
+            </table>
+          </td>
+          <td style='width:50%;'>
+            <table class = 'noborder'>
+              <tr>
+                <td> Posting Date : </td>
+                <td> <script>date.str_to_user(doc.posting_date)</script> </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style='width:50%;'>
+            <table class = 'noborder'>
+              <tr>
+                <td> Bill Date : </td>
+                <td> <script>date.str_to_user(doc.bill_date)</script> </td>
+              </tr>
+            </table>
+          </td>
+          <td style='width:50%;'></td>
+        </tr>
+      </table>
+      <hr>
+    </div>
+    <div>
+      <table class = 'noborder' style = "width:100%;">
+        <tr>
+          <td style='width:50%;'>
+            <table class = 'noborder'>
+              <tr>
+                <td> Expense Head : </td>
+                <td> <b> <script>get_expacct()</script></b> </td>
+               </tr>
+               <tr>
+               <td> Cost Centre : </td>
+               <td> <b> <script>get_cc()</script></b> </td>
+              </tr>
+            </table>
+          </td>
+          <td style='width:50%;'></td>
+        </tr>
+      </table>
+      <script>get_taxes_and_totals()</script>
+      <br><br>
+      <table>
+       <tr>
+        <td> Remarks : </td>
+        <td><b> <script>doc.remarks</script></b> </td>
+       </tr>
+      </table>
+      <hr>
+    </div>
+    <div>
+      <table class = 'noborder' style = "width:100%;">
+        <tr>
+        <div style="padding-top: 1.2cm">
+          <td style='width:50%; vertical-align: top;'><h4>Checked By</h4></td>
+          <td style='width:50%; vertical-align: top;'>
+            <h4>(Authorised Signatory)</h4>
+          </td>
+        </tr>
+    </div>
+  </body>
+</html>

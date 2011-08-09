@@ -1,0 +1,362 @@
+<html>
+<head>
+<!--Other charges function-->
+<script>
+    var make_row = function(title,item,val,bold){
+    var bstart = '<b>'; var bend = '</b>';
+    return '<tr><td style="width:30%;text-align:left">'+(bold?bstart:'')+title+(bold?bend:'')+'</td>'
+              +'<td style="width:20%">'+(bold?bstart:'')+item+(bold?bend:'')+'</td>'
+              +'<td style="width:10%;text-align:right">'+doc.currency+'</td>'
+              +'<td style="width:40%;text-align:right">'+val+'</td>'
+              +'</tr>'
+  }
+
+  function get_other_charges(){
+    if (doc.quotation_title == 'Proforma Invoice') {
+      var cl = getchildren('RV Tax Detail',doc.name,'other_charges');
+      var out='';
+      out +='<div><table class="noborder" style="width:100%">'
+      var show = 1
+      for(var i=0;i<cl.length;i++){
+        if (flt(cl[i].hide) >0){
+          show = 0
+        }
+      }
+      if (show == 1){
+        out += make_row('Net Total','',fmt_money(convert_rate(doc.net_total)),1);
+      }
+      if(cl.length){
+        for(var i=0;i<cl.length;i++){
+          if(cl[i].hide != 1)
+            out += make_row( cl[i].description, "on Item # " + (cl[i].item_wise_tax_detail?cl[i].item_wise_tax_detail:''),fmt_money(convert_rate(cl[i].tax_amount)), 0);
+        }
+      }
+      out +=make_row('Grand Total','',fmt_money(doc.grand_total),1)
+            +make_row('Rounded Total','',fmt_money(doc.rounded_total),1)
+            +make_row('In Words','',doc.in_words,1)
+      out +='</table></div>';
+    } else { out = '';}
+    return out;
+  }
+      
+  function get_letter_head(){
+    var cp = locals['Control Panel']['Control Panel'];
+  	if(cp.letter_head) {return cp.letter_head; }
+
+  }
+  
+  function convert_rate(val){
+    var new_val = flt(val)/flt(doc.conversion_rate);
+    return new_val;
+  }
+</script>
+</head>
+<body>
+<div style="border:1px solid black;padding:20px">
+<!--header-->
+<div><script>get_letter_head()</script></div>
+<div style="border-bottom: 1px solid; padding-bottom: 5px;">
+ <script>'<h2>'+doc.quotation_title+'</h2>'</script>
+ <div>
+  <b><script>doc.quotation_title</script> Number: <script>doc.name</script></b>
+ </div>
+ <div>
+  Quotation Date: <script>date.str_to_user(doc.transaction_date)</script>
+ </div>
+</div>
+
+<div style="padding-top:10px">
+<br>
+To,
+<br>
+<br>
+<script>doc.customer_name</script><br>
+<script>replace_newlines(doc.address_display)</script>
+<br><script>doc.intro_note</script>
+</div>
+
+<div>
+<br>
+                <script>
+
+ var out = '<table class="simpletable">'
+
+  +'<tr>'
+
+  +'<td style="width:5%; font-weight:bold">Sr</td>'
+
+  +'<td style="width:10%; font-weight:bold">Item Code</td>'
+
+  +'<td style="width:51%; font-weight:bold">Description</td>'
+
+  +'<td style="width:6%; font-weight:bold">Quantity</td>'
+
+  +'<td style="width:10%; font-weight:bold">Rate ('+doc.currency+')</td>'
+
+  +'<td style="width:10%; font-weight:bold">Amount ('+doc.currency+')</td>'
+
+  +'</tr>';
+
+
+
+  var il = getchildren('Quotation Detail',doc.name,'quotation_details');
+
+  var itab = [];
+
+
+
+  // get the table
+
+
+
+  var item_amt = 0;
+
+
+
+
+
+for(var i=il.length-1;i>=0;i=i-1) {
+
+  
+
+  // please get the amount value for this item
+
+  
+
+  var print_item = il[i].item_code;
+
+  if (! flt(il[i].print_rate)) var print_rate = fmt_money(convert_rate(il[i].basic_rate));
+
+  else var print_rate = fmt_money(il[i].print_rate);
+
+  if(! flt(il[i].print_amt)) var print_amt = fmt_money(convert_rate(il[i].amount));
+
+  else var print_amt = fmt_money(il[i].print_amt);
+
+  var print_qty = fmt_money(il[i].qty);
+
+  
+
+  var desc = replace_newlines(il[i].description);
+
+  
+
+  if((il[i].colour)&&(il[i].colour!='Not Applicable'))desc=desc+'<br>Colour : '+il[i].colour;
+
+  if(il[i].formica)desc=desc+'<br>Formica / Membrane : '+il[i].formica;
+
+  if(il[i].packing_type)desc=desc+'<br>Packing Type : '+il[i].packing_type;
+
+
+
+
+
+  itab[itab.length] = [ print_item, desc, print_qty,  print_rate, print_amt];
+
+}
+
+
+
+  // print the table
+
+
+
+  var sr_no = 0;
+
+  var print_sr = '';
+
+  var print_item = '';
+
+  var pborder='';
+
+
+
+  for(var i=itab.length-1;i>=0;i=i-1) {
+
+
+
+    var pborder='';
+
+    sr_no++;
+
+    print_sr = sr_no+'';
+
+    print_item = '<b>'+itab[i][0]+'</b>';
+
+    if (i!=0) var pborder = 'border-bottom: 0px';
+
+  
+
+
+
+    out=out+'<tr>'
+
+    +'<td style="'+pborder+'">'+print_sr+'</td>'
+
+    +'<td style="'+pborder+'">'+print_item+'</td>'
+
+    +'<td style="'+pborder+'">'+itab[i][1]+'</td>'
+
+    +'<td style="'+pborder+'">'+itab[i][2]+'</td>'
+
+    +'<td style="'+pborder+'">'+itab[i][3]+'</td>'
+
+    +'<td style="text-align:right;'+pborder+'">'+itab[i][4]+'</td>'
+
+    +'</tr>';
+
+
+
+ }
+
+ out = out + '</table>';
+
+ out;</script>
+
+
+
+</div>
+
+<!--Other charges table-->
+<div>
+<table style="width:100%">
+  <tr>
+    <td style="width:65%"></td>
+    <td style="width:35%"><script>get_other_charges()</script></td>
+  </tr>
+</table>
+</div>
+
+<div><br>Payment Terms</div>
+<div><br><script>replace_newlines(doc.payment_terms)</script></div>
+<div><b>Please See the Attached Sheet for Additional Terms and Conditions</b></div>
+<div><br><script>replace_newlines(doc.concluding_note)</script></div>
+<div><br><br>(Authorised Signatory)</div>
+<div style='page-break-after: always'></div></div>
+
+<!-- Terms and conditions -->
+<div style="border:1px solid black;padding:20px">
+<div><script>get_letter_head()</script></div>
+
+<h4 style='text-align: center'>Terms and Conditions</h4>
+
+<div><b>Terms and conditions below are applicable unless specified in section "Special Terms"</b></div>
+
+<style>
+table.simpletable1 {
+	border-collapse: collapse;
+}
+.simpletable1 td {
+	border: 1px solid #000;
+	padding: 2px;
+	font-size: 10px;
+}
+</style>
+
+<table class='simpletable1'>
+<tr>
+ <td style='width: 25%'>RATE</td>
+ <td>Rate offered by us are on the basis of xxxxxxxxxxxxxx by Road Transport duly well packed.</td>
+</tr>
+<tr>
+ <td>EXCISE DUTY</td>
+ <td>Excise Duty Shall be extra to your account or as applicable at the time of dispatch.  The prevailing rate is @8% on Basic Price.</td>
+</tr>
+<tr>
+ <td>CESS</td>
+ <td>Educational Cess shall be extra to your account or as applicable at the time of dispatch. The prevailing rate is @2% on Excise Duty.<br><br>
+Secondary and Higher Education Cess shall be extra to your account or as applicable at the time of dispatch.  The prevailing rate is @1% on Excise Duty.</td>
+</tr>
+
+<tr>
+ <td>CST / VAT</td>
+ <td>C.S.T. / V.A.T. shall be extra to your account or as applicable at the time of dispatch. The prevailing rate is @15% (on Basic Price + Excise Duty & Cess).<br>
+ <br>
+ However, if you provide us valid & acceptable "C" Form as applicable, xxxxxxxxxxxxxxx then the concessional CST/VAT shall be charged extra as applicable.  The prevailing concessional rate is @2%. 
+</td>
+</tr>
+
+<tr>
+ <td>OCTROI</td>
+ <td>NIL  subject to receipt of valid and acceptable Octroi Exemption Certificate, in favour of xxxxxxxxxxxxxxxxxxxxx from you, otherwise Octroi Duty if any, shall be extra at actual to your accounts.</td>
+</tr>
+
+<tr>
+ <td>ROAD TAX / ENTRY TAX</td>
+ <td>Valid & acceptable Road Permit for the state in which delivery is to be effected shall be provided by you in the name of xxxxxxxxxxxxxxxxxxxx Road Tax  shall be extra to your accouts.</td>
+</tr>
+
+<tr>
+ <td>STATUTORY LEVIES</td>
+ <td>In the event of implementation of any new duties & levies by Govt. any change in the statutory levies stated above during the tenure of the contract, the same shall be applicable to this offer which is payable by you.</td>
+</tr>
+
+<tr>
+ <td>DELIVERY PERIOD</td>
+ <td>Delivery within 6 to 10  weeks from the date of receipt of your order, depending upon the quantity of the items or as mutually agreed upon</td>
+</tr>
+
+<tr>
+ <td>ORDER CANCELLATION</td>
+ <td>a) In Case of the Purchase Order is cancelled by the customer before dispatch, the cancellation charges @5% will be applicable.<br><br>
+b) In Case of the Purchase Order is cancelled by customer after dispatch, the duties, taxes & freight etc. shall be recovered from the customer, in addition to cancellation charges.
+</td>
+</tr>
+
+<tr>
+ <td>AFTER SALES SERVICES</td>
+ <td>After sales service shall be provided through our trained technicians on annual contract or per visit  basis on mutually agreed terms, conditions and payment.</td>
+</tr>
+
+<tr>
+ <td>WARRANTY</td>
+ <td>The items offered are warranteed for any manufacturing defects for a period of 13 months from the date of dispatch or 12 months from the date of Assembly, whichever ends earlier. Such defects in workmanship & material, if any, brought to our notice during the warranty period the same shall be rectified / replaced at our cost.<br><br>
+Warranty does not cover spares under wear & tear and damages due to misuse, mishandling & missing of the product.
+</td>
+</tr>
+
+<tr>
+ <td>BRAND OFFERED</td>
+ <td>xxxxxxxx</td>
+</tr>
+
+<tr>
+ <td>MANUFACTURER</td>
+ <td>xxxxxxxxxxxxxxxxxx</td>
+</tr>
+
+<tr>
+ <td>COUNTRY OF ORIGIN</td>
+ <td>INDIA</td>
+</tr>
+
+<tr>
+ <td>SPECIFICATION</td>
+ <td>As per our catalogue / As per our quotation submitted</td>
+</tr>
+
+<tr>
+ <td>INSURANCE</td>
+ <td>By us</td>
+</tr>
+
+<tr>
+ <td>FORCE MAJEUR</td>
+ <td>Our offer is governed by standard Force Majeur Clause.</td>
+</tr>
+
+<tr>
+ <td>VALIDITY</td>
+ <td>15   days from the date of this offer and thereafter subject to our final confirmation OR 30 days from the date of this offer subject to the condition that in the event of increase in steel & other major Raw Material prices during this validity of offer, the same shall be applicable and offered prices will be revised accordingly.</td>
+</tr>
+
+<tr>
+ <td>NOTE</td>
+ <td>You are requested to release your order in the name of: xxxxxxxxxxxxxxxxxxxxxxxx</td>
+</tr>
+
+</table>
+
+<div class="spacer"></div>
+</div></body>
+</html>

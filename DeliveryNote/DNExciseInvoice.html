@@ -1,0 +1,254 @@
+<html>
+  <head>
+  <style>.noborder td { border: 0px solid #fff; } </style>
+     <script>
+    var make_row = function(title,item,val,bold){
+    var bstart = '<b>'; var bend = '</b>';
+    return '<tr><td style="width:40%">'+(bold?bstart:'')+title+(bold?bend:'')+'</td>'
+              +'<td style="width:40%;text-align:right">'+item+'</td>'
+              +'<td style="width:25%;text-align:right">'+val+'</td>'
+              +'</tr>'
+  }
+
+  function get_other_charges(){
+    var cl = getchildren('RV Tax Detail',doc.name,'other_charges');
+    var out='';
+    out +='<div><table class="noborder" >'
+    var show = 1
+    for(var i=0;i<cl.length;i++){
+      if (flt(cl[i].hide) >0){
+        show = 0
+      }
+    }
+    if (show == 1){
+      out += make_row('Net Total','',fmt_money(doc.net_total),1);
+    }
+    if(cl.length){
+      for(var i=0;i<cl.length;i++){
+        if (! cl[i].hide)  out += make_row(cl[i].description, "on Item # " + cl[i].item_wise_tax_detail,fmt_money(cl[i].tax_amount),0);
+      }
+    }
+    out +=make_row('Grand Total','',fmt_money(doc.grand_total),1)
+          +make_row('Rounded Total','',fmt_money(doc.rounded_total),1)
+    out +='</table></div>'; 
+    return out;
+  }
+      
+  function get_letter_head(){
+    var cp = locals['Control Panel']['Control Panel'];
+  	if(cp.letter_head) {return cp.letter_head; }
+
+  }
+  
+  //function convert_rate(val){
+  //  var new_val = flt(val)/flt(doc.conversion_rate);
+  //  return new_val;
+  //}
+  
+  function get_complant_no(){
+    if (doc.customer_complaint_no){
+      var cust = doc.customer_complaint_no
+      out = "<tr><td style='width: 30%;'>Customer Complaint</td><td style='width: 70%;'> "+ doc.customer_complaint_no + "</td></tr>"                  
+      return out
+    }
+  }
+</script>
+  </head>
+  <body>
+    <div>
+      <table style='width: 100%;'>
+        <tr>
+          <td style="width: 50%;">
+            <script>
+              var str = doc.name;
+              var amendment_str = '';
+              if(str.split('-').length>2) {
+                var b = str.split('-');
+                var amendment_str = b[b.length-1];
+                var str = str.substr(0,str.length - (amendment_str.length + 1));
+                var amendment_str = "<div>Amendment #" + amendment_str + "</div>";
+              }
+              "<div style='font-size:18px'>Invoice: "+str+"</div>";
+            </script>
+          </td>
+          <td>
+            <table style='width: 100%;'>
+              <tbody>
+                <tr>
+                  <td style="width: 30%;">Date</td>
+                  <td style="width: 70%;"><script>date.str_to_user(doc.transaction_date)</script></td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Name and Address of Consignee</strong>
+            <p><script>replace_newlines(doc.consignee_address)</script></p>
+            <table class='noborder'>
+              <tr>
+                <td width="20%">PO No.</td>
+                <td><script>doc.po_no</script></td>
+              </tr>
+              <tr>
+                <td width="20%">PO Date.</td>
+                <td><script>date.str_to_user(doc.po_date)</script></td>
+              </tr>
+            </table>
+          </td>
+          <td style="width: 50%;">
+            <table class="noborder" style='width: 100%;'>
+              <tr>
+                <td style="width: 30%;">Order Number</td>
+                <td style="width: 70%;"><script>doc.sales_order_no</script></td>
+              </tr>
+              <tr>
+                <td style="width: 30%;">Order Date</td>
+                <td style="width: 70%;"><script>date.str_to_user(doc.sales_order_date)</script></td>
+              </tr>          
+              <tr>
+                <td style="width: 30%;">Transporter</td>
+                <td style="width: 70%;"><script>doc.transporter_name</script></td>
+              </tr>
+              <tr>
+                <td style="width: 30%;">LR No.</td>
+                <td style="width: 70%;"><script>doc.lr_no</script></td>
+              </tr>
+              <tr>
+                <td style="width: 30%;">LR Date</td>
+                <td style="width: 70%;"><script>date.str_to_user(doc.lr_date)</script></td>
+              </tr>
+              <tr>
+                <td style="width: 30%;">Vehicle No.</td>
+                <td style="width: 70%;"><script>doc.vehicle_no</script></td>
+              </tr>
+              <tr>
+                <td style="width: 30%;">Mode of Transport</td>
+                <td style="width: 70%;"><script>doc.mode_of_transport</script></td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+      <!-- items -->
+    <div>
+      <script>
+ var out = '<table class="simpletable">'
+  +'<tr>'
+  +'<td style="width:5%; font-weight:bold">Sr</td>'
+  +'<td style="width:10%; font-weight:bold">Item Code</td>'
+  +'<td style="width:51%; font-weight:bold">Description</td>'
+  +'<td style="width:6%; font-weight:bold">Quantity</td>'
+  +'<td style="width:10%; font-weight:bold">Packages</td>'
+  +'<td style="width:10%; font-weight:bold">Rate (INR)</td>'
+  +'<td style="width:10%; font-weight:bold">Amount (INR)</td>'
+  +'</tr>';
+
+  var il = getchildren('Delivery Note Detail',doc.name,'delivery_note_details');
+  var itab = [];
+
+  // get the table
+
+  var item_amt = 0;
+
+
+  for(var i=il.length-1;i>=0;i=i-1) {
+  
+    // please get the amount value for this item
+  
+    var print_item = il[i].item_code;
+    var print_rate = fmt_money(il[i].basic_rate);
+    var print_amt = fmt_money(il[i].amount);
+    
+    var print_qty = fmt_money(il[i].qty);
+  
+    var desc = replace_newlines(il[i].description);
+  
+    itab[itab.length] = [ print_item, desc, print_qty,il[i].no_of_packs?il[i].no_of_packs:'',  print_rate, print_amt];
+  }
+
+  // print the table
+
+  var sr_no = 0;
+  var print_sr = '';
+  var print_item = '';
+  var pborder='';
+
+  for(var i=itab.length-1;i>=0;i=i-1) {
+
+    var pborder='';
+    sr_no++;
+    print_sr = sr_no+'';
+    print_item = '<b>'+itab[i][0]+'</b>';
+    if (i!=0) var pborder = 'border-bottom: 0px';
+  
+
+    out=out+'<tr>'
+    +'<td style="'+pborder+'">'+print_sr+'</td>'
+    +'<td style="'+pborder+'">'+print_item+'</td>'
+    +'<td style="'+pborder+'">'+itab[i][1]+'</td>'
+    +'<td style="'+pborder+'">'+itab[i][2]+'</td>'
+    +'<td style="'+pborder+'">'+itab[i][3]+'</td>'
+    +'<td style="'+pborder+'">'+itab[i][4]+'</td>'
+    +'<td style="text-align:right;'+pborder+'">'+itab[i][5]+'</td>'
+    +'</tr>';
+
+  }
+  out = out + '</table>';
+  out; </script>
+    </div>
+    <!-- Other Charges -->
+
+    <div>
+      <table class='noborder' >
+        <tr>
+          <td style="width:65%">
+            <table class='noborder' >
+              <tr>
+                <td>Excise Duty Payable / Paid</td>
+                <td><script>(doc.excise_duty_paid?doc.excise_duty_paid:'')</script></td>
+              </tr>
+              <tr>
+                <td>Excise Duty In Words</td>
+                <td><script>(doc.excise_duty_in_words?doc.excise_duty_in_words:'')</script></td>
+              </tr>
+              <tr>
+                <td>Date and Time of Issue of Invoice</td>
+                <td><script>date.str_to_user(doc.date_of_issue)+ ' ' + (doc.time_of_issue?doc.time_of_issue:'') </script></td>
+              </tr>
+              <tr>
+                <td>Date and Time of Removal of Goods</td>
+                <td><script>date.str_to_user(doc.date_of_removal)+ ' ' + (doc.time_of_removal?doc.time_of_removal:'') </script></td>
+              </tr>
+            </table>
+          </td>
+          <td style="text-align:right;width:35%"><script>get_other_charges()</script></td>
+        </tr>
+        <tr>
+          <td style="width:65%"></td>
+          <td style="text-align:right;width:35%">
+            <table class='noborder'>
+              <tr>
+                <td style="width:40%"><b>In Words</b></td>
+                <td style="width:60%"><script>doc.in_words</script></td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div>
+      <table>
+        <tr>
+          <td>
+            <script>if(doc.concluding_note)replace_newlines(doc.concluding_note);else ''</script>
+          </td>
+        </tr>
+      </table> 
+  <!-- closing details -->
+    </div>
+  </body>
+</html>
+

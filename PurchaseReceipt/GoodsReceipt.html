@@ -1,0 +1,186 @@
+<head>
+<style>.noborder td { border: 0px solid #fff; } </style>
+</head>
+<body>
+<table class='simpletable'>
+    <tr>
+      <td style='width:50%'><font size="4">
+GRN No : <script>"<font size='4'>"+doc.name+"</font>"</script></font><br></td>
+	<td style='width:50%'>Dated: <script>date.str_to_user(doc.posting_date)</script><br>
+        </td>
+</tr>
+
+<tr>
+	<td width="50%">
+	<table class="noborder">
+	<tr>
+	<td width="30%">
+		Vendor Name :<br>
+	</td>
+	<td width="70%">
+		<script>doc.supplier</script>
+	</td>
+	</tr>
+
+	<tr>
+	<td width="30%">
+		Vendor Address :<br>
+	</td>
+	<td width="70%">
+		<script>doc.address_display?doc.address_display.replace(/$n/g, '<br>'):''</script>
+	</td>
+	</tr>
+	</table>
+	</td>
+	<td width="50%">
+<table class="noborder" width="100%">
+<tr>
+	<td width="50%">
+	Status :<br>
+	</td>
+	<td width="50%">
+		<script>doc.status</script><br>
+	</td>
+</tr>
+<tr>
+	<td width="50%">
+	Transporter Name :<br>
+	</td>
+	<td width="50%">
+		<script>doc.transporter_name</script><br>
+	</td>
+</tr>
+<tr>
+	<td width="50%">
+	LR No :<br>
+	</td>
+	<td width="50%">
+		<script>doc.lr_no</script><br>
+	</td>
+</tr>
+<tr>
+	<td width="50%">
+	LR Date :<br>
+	</td>
+	<td width="50%">
+		<script>date.str_to_user(doc.lr_date)</script><br>
+	</td>
+</tr>
+<tr>
+	<td width="50%">
+	Challan No :<br>
+	</td>
+	<td width="50%">
+		<script>doc.challan_no</script><br>
+	</td>
+</tr>
+<tr>
+	<td width="50%">
+	Challan Date :<br>
+	</td>
+	<td width="50%">
+		<script>date.str_to_user(doc.challan_date)</script><br>
+	</td>
+</tr>
+<tr>
+	<td width="50%">
+	Order From :<br>
+	</td>
+	<td width="50%">
+		<script>doc.order_from</script><br>
+	</td>
+</tr>
+</table>
+</td>
+
+
+
+
+
+<tr>
+  <td colspan='2'>
+    <script>print_table('Purchase Receipt',doc.name, 'purchase_receipt_details', 'Purchase Receipt Detail', [ 'SR', 'prevdoc_docname', 'item_code', 'description',  'challan_qty', 'received_qty', 'qty', 'rejected_qty','uom','qc','tc','purchase_rate','purchase_account'], [ 'Sr', 'PO No', 'Item Code', 'Description', 'Challan Quantity', 'Recd Quantity', 'Accepted Quantity', 'Rejected Quantity', 'UOM', 'QC', 'TC', 'PO Rate', 'Purchase Account'], ['3%', '7%', '6%',  '26%', '8%', '8%', '8%', '8%', '8%', '3%', '3%', '6%','6%']).innerHTML
+    </script>
+  </td>
+ </tr>
+
+
+<tr>
+
+<td width="50%">
+<table class="noborder" width="100%">
+
+
+
+</table>
+</td>
+
+<td width="50%">
+<table class="noborder" width="100%">
+	<tr>
+	<td width="50%">
+		Total Amount :<br>
+	</td>
+	<td width="50%">
+		<script>fmt_money(doc.total_amount)</script><br>
+	</td>
+	</tr>
+	<tr>
+	<td width="50%">
+		Total Accepted :<br>
+	</td>
+	<td width="50%">
+		<script>doc.total_accepted</script><br>
+	</td>
+	</tr>
+
+	<tr>
+	<td width="50%">
+		Total Rejected :<br>
+	</td>
+	<td width="50%">
+		<script>doc.total_rejected</script><br>
+	</td>
+	</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td width="50%">
+&nbsp;
+</td>
+<td width="50%">
+	<table class="noborder" width="100%">
+	<tr>
+	<td width="50%">
+		Remarks :<br>
+	</td>
+	<td>
+	<script>doc.remarks</script><br>
+	</td>
+	</tr>
+	<tr>
+	<td width="50%">
+		Reason of Rejection :<br>
+	</td>
+	<td>
+	<script>doc.rejection_reason</script><br>
+	</td>
+	</tr>
+	<tr>
+	<td width="50%">
+		Created By :<br>
+	</td>
+	<td>
+	<script>doc.created_by</script><br>
+	</td>
+	</tr>	
+	<tr>
+	<td width="50%">
+		Checked By :<br>
+	</td>
+	<td>
+	<script>doc.checked_by</script><br>
+	</td>
+	</tr>

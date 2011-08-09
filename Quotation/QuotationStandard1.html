@@ -1,0 +1,128 @@
+<html>
+<head>
+<style>
+.cust_tbl { border-collapse:collapse; }
+.cust_tbl td { border:1px solid #848484; }
+</style>
+<!--Other charges function-->
+<script>
+    var make_row = function(title,val,bold){
+    var bstart = '<b>'; var bend = '</b>';
+    return '<tr><td style="width:50%; border:1px solid #848484">'+(bold?bstart:'')+title+(bold?bend:'')+'</td>'
+              +'<td style="width:20%;text-align:right; border:1px solid #848484">'+doc.currency+'</td>'
+              +'<td style="width:20%;text-align:right; border:1px solid #848484">'+val+'</td>'
+              +'</tr>'
+  }
+
+  function get_other_charges(){
+    var cl = getchildren('RV Tax Detail',doc.name,'other_charges');
+    
+    var out='';
+    out +='<div><table class="noborder" style="width:100%">'
+          +make_row('Net Total',fmt_money(convert_rate(doc.net_total)),1);
+    if(cl.length){
+      for(var i=0;i<cl.length;i++){
+        out += make_row(cl[i].description,fmt_money(convert_rate(cl[i].tax_amount)),0);
+      }
+    }
+    out +=make_row('Grand Total',fmt_money(doc.grand_total_export),1)
+          +make_row('Rounded Total',fmt_money(doc.rounded_total_export),1)
+    out +='</table></div>'; 
+    return out;
+  }
+      
+  function get_letter_head(){
+    var cp = locals['Control Panel']['Control Panel'];
+  	if(cp.letter_head) {return cp.letter_head; }
+
+  }
+  
+  function convert_rate(val){
+    var new_val = flt(val)/flt(doc.conversion_rate);
+    return new_val;
+  }
+</script>
+</head>
+<body>
+<div style="border:1px solid black;padding:20px">
+<!--header-->
+<div style="border-bottom: 1px solid; padding-bottom: 5px; width:100%"><script>get_letter_head()</script></div>
+<div><center><h2>QUOTATION</h2></center></div>
+<div>
+<table style="width:100%">
+<tr>
+  <td align = 'left'>To,<br>
+     <script>doc.customer_name</script><br>
+     <script>replace_newlines(doc.address_display)</script></td>
+  <td valign = 'top' align = 'right'><table><tr><td><b>Quotation No.</b></td><td><b>:</b></td><td><script>doc.name</script></td></tr>
+    <tr><td><b>Quotation Date</b></td><td><b>:</b></td><td><script>date.str_to_user(doc.transaction_date)</script></td></tr></table>
+  </td>
+</tr>
+</table>
+</div>
+<br>
+<div>KIND ATTN : <script>doc.contact_person</script>
+<br><script>replace_newlines(doc.intro_note)</script>
+</div>
+
+<div>
+<br>
+    <script>
+    var t = print_table('Quotation', doc.name, 'quotation_details', 'Quotation Detail', ['SR', 'item_code','description','qty','export_rate','export_amount'], ['Sr', 'Item Code', 'Description','Quantity',' Rate','Amount'], ['5%','15%', '40%', '10%', '15%','15%'])
+    if(t.appendChild) {
+      // single
+      out = t.innerHTML;
+    } 
+    else {//multiple
+      out = ''
+      for(var i=0;i<t.length;i++) {
+        if(i!=t.length-1){
+          out += '<div style:"padding-top:5px;"></div>' + t[i].innerHTML +'<div style="page-break-after:always"></div>';
+        }
+        else out += '<div style:"padding-top:5px;"></div>' + t[i].innerHTML;
+      }
+    }
+    out;
+    </script>
+
+</div>
+
+<!--Other charges table-->
+<div>
+<table style="width:100%"><tr><td style="width:65%"></td>
+  <td style="width:35%"><script>get_other_charges()</script></td></tr>
+  <tr><td style="width:65%"></td><td style="width:35%"><table style="width:100%"><tr><td style="width:40%"><b>In Words</b></td><td style="width:60%"><script>doc.in_words_export</script></td></tr></table></td></tr>
+</table>
+</div>
+
+<div>
+  <script>
+    var t = print_table('Quotation', doc.name, 'tc_details', 'TC Detail', ['SR', 'terms','description'], ['Sr', 'Terms', 'Description'], ['5%','35%', '60%'],'',class="cust_tbl")
+    var out = '';
+    if(t.appendChild) {
+      // single
+      //out = t.innerHTML;
+      if(t.innerHTML)
+        out += '<br><b>TERMS AND CONDITIONS : </b><br>' + t.innerHTML;
+    } 
+    else {//multiple
+      if(t){
+        out += '<br><b>TERMS AND CONDITIONS : </b><br>'
+        for(var i=0;i<t.length;i++) {
+          if(i!=t.length-1){
+            out += '<div style:"padding-top:5px;"></div>' + t[i].innerHTML +'<div style="page-break-after:always"></div>';
+          }
+          else out += '<div style:"padding-top:5px;"></div>' + t[i].innerHTML;
+        }
+      }  
+    }
+ //   }
+    out;
+    </script>
+</div>
+
+<div><br><script>replace_newlines(doc.concluding_note)</script></div>
+<div><script>doc.company</script></div>
+<div><br><br>(Authorised Signatory)</div>
+</div></body>
+</html>

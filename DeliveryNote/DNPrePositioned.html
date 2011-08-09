@@ -1,0 +1,63 @@
+<script type="text/javascript">// <![CDATA[
+// ********************************************** get item details **************************************************
+  // ---------
+  // make row
+  // ---------
+  var make_row = function(val, top){
+    var bstart = '<b>'; var bend = '</b>';
+    return ret = '<tr><td style="position: absolute; top: '+top+'cm; left: 0cm;">'+cstr(val[0])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 1.3cm; width: 6cm">'+cstr(val[1])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 8cm; width: 6.2cm">'+cstr(val[2])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 14.6cm; width: 15cm;text-align: justify">'+cstr(val[3])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 30.9cm;">'+cstr(val[4])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 32.5cm;">'+cstr(val[5])+'</td>'
+              +'</tr>';
+  }
+
+  // -----------------
+  // get item details
+  // -----------------
+  function get_item_details(){
+    var cl = getchildren('Delivery Note Detail',doc.name,'delivery_note_details');
+    var out='';
+    out +='<table class="noborder" style="width:100%">'
+    var start = 0;
+    if(cl.length){
+      for(var i=0;i<cl.length;i++){
+        out += make_row([cl[i].idx, cl[i].item_code, cl[i].item_name, cl[i].description, cl[i].stock_uom, cl[i].qty], start);
+        start += 2;
+      }
+    }
+    out +='</table>'; 
+    return out;
+  }
+  
+// ]]></script>
+
+<div style="position: absolute; top: 4cm; left: 1.6cm; font-family: Draft 17 cpi;"><script type="text/javascript">doc.customer_name</script></div>
+<div style="position: absolute; top: 4.5cm; left: 1.6cm; font-family: Draft 17 cpi;"><script type="text/javascript">replace_newlines(doc.address_display)</script></div>
+
+<div style="position: absolute; top: 4.5cm; left: 14.2cm; font-family: Draft 17 cpi;"><script type="text/javascript">doc.po_no</script></div>
+<div style="position: absolute; top: 4.5cm; left: 21.25cm; font-family: Draft 17 cpi;"><script type="text/javascript">date.str_to_user(doc.po_date)</script></div>
+<div style="position: absolute; top: 5.75cm; left: 14.2cm; font-family: Draft 17 cpi;"><script type="text/javascript">doc.indent_no</script></div>
+<div style="position: absolute; top: 5.75cm; left: 21.25cm; font-family: Draft 17 cpi;"><script type="text/javascript">date.str_to_user(doc.indent_date)</script></div>
+
+<div style="position: absolute; top: 3.75cm; left: 28.3cm; font-family: Draft 17 cpi;"><script type="text/javascript">doc.name</script></div>
+<div style="position: absolute; top: 3.75cm; left: 34.6cm; font-family: Draft 17 cpi;"><script type="text/javascript">date.str_to_user(doc.transaction_date)</script></div>
+
+
+<!-- Item Details -->
+<div style="position: absolute; top: 8.5cm; left: 0.8cm; font-family: Draft 17 cpi;">
+	<table style="width: 100%;">
+		<tbody>
+			<tr>
+				<td>
+					<script type="text/javascript">get_item_details()</script>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div style="position: absolute; top: 23.75cm; left: 1.6cm; font-family: Draft 17 cpi;"><script type="text/javascript">replace_newlines(doc.mode_of_despatch)</script></div>
+<div style="position: absolute; top: 23.75cm; left: 20cm; font-family: Draft 17 cpi;"><script type="text/javascript">replace_newlines(doc.instructions)</script></div>

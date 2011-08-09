@@ -1,0 +1,531 @@
+<html>
+
+  <head>
+
+    <style>.noborder td { border: 0px solid #fff; } </style>
+
+         <script>
+
+    var make_row = function(title,item,val,bold){
+
+    var bstart = '<b>'; var bend = '</b>';
+
+    return '<tr><td style="width:50%;text-align:right">'+(bold?bstart:'')+title+(bold?bend:'')+'</td>'
+              +'<td style="width:40%">'+(bold?bstart:'')+item+(bold?bend:'')+'</td>'
+               +'<td style="width:20%;text-align:right">INR</td>'
+              +'<td style="width:20%;text-align:right">'+val+'</td>'
+              +'</tr>'
+  }
+
+
+
+  function get_other_charges(){
+
+    var cl = getchildren('RV Tax Detail',doc.name,'other_charges');
+
+    var out='';
+
+    out +='<div><table class="noborder" >'
+
+    var show = 1
+    for(var i=0;i<cl.length;i++){
+      if (flt(cl[i].hide) >0){
+        show = 0
+      }
+    }
+    if (show == 1){
+      out += make_row('Net Total','',fmt_money(doc.net_total),1);
+    }
+
+    if(cl.length){
+
+      for(var i=0;i<cl.length;i++){
+        if (! cl[i].hide)  out += make_row( cl[i].description , "on Item #" + 
+
+(cl[i].item_wise_tax_detail?cl[i].item_wise_tax_detail:''), fmt_money(cl[i].tax_amount), 0);
+
+      }
+
+    }
+
+    
+    out +=make_row('Grand Total','',fmt_money(doc.grand_total),1)
+
+          +make_row('Rounded Total','',fmt_money(doc.rounded_total),1)
+
+          +make_row('Payment Received','',fmt_money(doc.total_advance),1);
+
+    out +='</table></div>'; 
+    return out;
+
+  }
+
+      
+
+  function get_letter_head(){
+
+    var cp = locals['Control Panel']['Control Panel'];
+
+    if(cp.letter_head) {return cp.letter_head; }
+
+  }
+
+
+  function get_complant_no(){
+
+    if (doc.customer_complaint_no){
+
+      var cust = doc.customer_complaint_no
+
+      out = "<tr><td style='width: 30%;'>Customer Complaint</td><td style='width: 70%;'> "+ doc.customer_complaint_no + 
+
+"</td></tr>"                  
+
+      return out
+
+    }
+
+  }
+  
+  function get_address() {
+    if (doc.billing_address){
+      var  add = doc.billing_address;
+    } 
+    else {
+       var add = doc.consignee_address;
+    }
+    return replace_newlines(add)
+  }
+
+  </script>
+
+  </head>
+
+  <body>
+
+    <table class="simpletable">
+
+      <tr style='text-align: left'>
+
+        <td colspan ='2'>
+
+xxxxxxxxxxx
+
+<br>
+
+Phone. xxxxxxx
+
+        <table class="simpletable" style = "width:100%;">
+
+          <tr>
+
+              <td style="width: 50%;">
+
+                <script>
+
+                  var s = doc.name?doc.name:'' ;
+
+                  var amendment_str = '';
+
+                  if(s.split('-').length>2) {
+
+                    var b = s.split('-');
+
+                    var amendment_str = b[b.length-1];
+
+                    var s = s.substr(0,s.length - (amendment_str.length + 1));
+
+                    var amendment_str = "<div>Amendment #" + amendment_str + "</div>";
+
+                  }
+
+                  "<div style='font-size:18px'>Tax/Retail Invoice: "+s+"</div>"
+
+                </script>
+
+              </td>
+
+              <td>
+
+                <table class="noborder">
+
+                  <tbody>
+
+                    <tr>
+
+                      <td style="width: 40%;">Date</td>
+
+                      <td style="width: 60%;"><script>date.str_to_user(doc.delivery_note_date_main)</script></td>
+
+                    </tr>
+
+                  </tbody>
+
+                </table>
+
+              </td>
+
+          </tr>
+
+          <tr>
+
+            <td>
+
+              <strong>Name and Address of Consignee</strong>
+
+              <p>
+
+               <script>get_address()</script>
+
+               </p>
+
+              <table class='noborder'>
+
+                <tr>
+
+                  <td width="20%">PO No.</td>
+
+                  <td><script>doc.po_no</script></td>
+
+                </tr>
+
+                <tr>
+
+                  <td width="20%">PO Date.</td>
+
+                  <td><script>date.str_to_user(doc.po_date)</script></td>
+
+                </tr>
+
+              </table>
+
+            </td>
+
+            <td style="width: 50%;">
+
+              <table class="noborder">
+
+                <tr>
+
+                  <td style="width: 30%;">Order Number</td>
+
+                  <td style="width: 70%;"><script>doc.sales_order_main</script></td>
+
+                </tr>
+
+                <tr>
+
+                  <td style="width: 30%;">Transporter</td>
+
+                  <td style="width: 70%;"><script>doc.transporter_name</script></td>
+
+                </tr>
+
+                <tr>
+
+                  <td style="width: 30%;">LR No.</td>
+
+                  <td style="width: 70%;"><script>doc.lr_no</script></td>
+
+                </tr>
+
+                <tr>
+
+                  <td style="width: 30%;">LR Date</td>
+
+                  <td style="width: 70%;"><script>date.str_to_user(doc.lr_date)</script></td>
+
+                </tr>
+
+                <tr>
+
+                  <td style="width: 30%;">Vehicle No.</td>
+
+                  <td style="width: 70%;"><script>doc.vehicle_no</script></td>
+
+                </tr>
+
+                <tr>
+
+                  <td style="width: 30%;">Mode of Transport</td>
+
+                  <td style="width: 70%;"><script>doc.mode_of_transport</script></td>
+
+                </tr>
+
+              </table>
+
+            </td>
+
+          </tr>
+
+        </table>
+
+        </td>
+
+      </tr>
+
+      <tr>
+
+        <td colspan = '2' style='padding: 0px'>
+
+          <!-- items -->
+
+                <div>
+
+      <script>
+
+ var out = '<table class="simpletable">'
+
+  +'<tr>'
+
+  +'<td style="width:5%; font-weight:bold">Sr</td>'
+
+  +'<td style="width:10%; font-weight:bold">Item Code</td>'
+
+  +'<td style="width:51%; font-weight:bold">Description</td>'
+
+  +'<td style="width:6%; font-weight:bold">Quantity</td>'
+
+  +'<td style="width:10%; font-weight:bold">Rate (INR)</td>'
+
+  +'<td style="width:10%; font-weight:bold">Amount (INR)</td>'
+
+  +'</tr>';
+
+
+
+  var il = getchildren('RV Detail',doc.name,'entries');
+
+  var itab = [];
+
+
+
+  // get the table
+
+  var cl = getchildren('RV Tax Detail',doc.name,'other_charges');
+
+  var item_amt = 0;
+  var show = 0
+    for(var i=0;i<cl.length;i++){
+      if (flt(cl[i].hide) >0){
+        show = 1
+      }
+    }
+   
+  for(var i=il.length-1;i>=0;i=i-1) {
+
+  
+
+    // please get the amount value for this item
+
+  
+
+    var print_item = il[i].item_code?il[i].item_code: il[i].name;
+
+    var print_rate = fmt_money(il[i].basic_rate);
+
+    var print_amt = fmt_money(il[i].amount);
+
+    if (il[i].print_rate && show == 1){
+
+      print_rate = fmt_money(il[i].print_rate)
+    }
+    if (il[i].print_amt && show == 1){
+
+      print_amt = fmt_money(il[i].print_amt)
+
+    }
+
+    var print_qty = fmt_money(il[i].qty);
+
+  
+
+    var desc = replace_newlines(il[i].description);
+
+  
+
+    if((il[i].colour)&&(il[i].colour!='Not Applicable'))desc=desc+'<br>Colour : '+il[i].colour;
+
+    if(il[i].formica)desc=desc+'<br>Formica / Membrane : '+il[i].formica;
+
+    if(il[i].packing_type)desc=desc+'<br>Packing Type : '+il[i].packing_type;
+
+
+
+
+
+    itab[itab.length] = [ print_item, desc, print_qty,  print_rate, print_amt];
+
+  }
+
+
+
+  // print the table
+
+
+
+  var sr_no = 0;
+
+  var print_sr = '';
+
+  var print_item = '';
+
+  var pborder='';
+
+
+
+  for(var i=itab.length-1;i>=0;i=i-1) {
+
+
+
+    var pborder='';
+
+    sr_no++;
+
+    print_sr = sr_no+'';
+
+    print_item = '<b>'+itab[i][0]+'</b>';
+
+    if (i!=0) var pborder = 'border-bottom: 0px';
+
+  
+
+
+
+    out=out+'<tr>'
+
+    +'<td style="'+pborder+'">'+print_sr+'</td>'
+
+    +'<td style="'+pborder+'">'+print_item+'</td>'
+
+    +'<td style="'+pborder+'">'+itab[i][1]+'</td>'
+
+    +'<td style="'+pborder+'">'+itab[i][2]+'</td>'
+
+    +'<td style="'+pborder+'">'+itab[i][3]+'</td>'
+
+    +'<td style="text-align:right;'+pborder+'">'+itab[i][4]+'</td>'
+
+    +'</tr>';
+
+
+
+  }
+
+  out = out + '</table>';
+
+  out; </script>
+
+              </div>
+
+        </td>
+
+      </tr>
+
+      <!-- totals details -->
+
+      <tr>
+
+        <td width = "50%"; valign= "top">
+
+          <table class="noborder">
+
+            <tr>
+
+              <td style="width: 30%;">Total Amount In Words</td>
+
+              <td style="width: 70%;"><script>doc.in_words</script></td>
+
+            </tr>
+
+            <tr>
+
+              <td><script>if(doc.concluding_note)doc.concluding_note; else '';</script></td>
+
+            </tr>
+
+          </table>
+
+        </td>
+
+        <td width = "50%"; valign= "top">
+
+          <script>get_other_charges()</script>
+
+        </td>
+
+      </tr>
+
+      <tr>
+
+        <td colspan= '2'>
+
+          <table class = 'noborder' style = "width:100%;">
+
+            <tr>
+
+              <td style='width:50%; vertical-align: top;'>
+
+                <div>
+
+  VAT TIN No:xxxxxxx
+
+<br>CST TIN No:xxxxxxxxxxx
+
+<br>Service Tax Reg No xxxxxxx
+
+<br>Our IT No.xxxxxxxx
+
+
+                </div>
+
+              </td>
+
+              <td style="width: 50%;">
+
+                <h4>For xxxxxxxd,</h4>
+
+                  <div style="padding-top: 0.5cm"><br>Authorized Signatory </div>
+
+              </td>
+
+            </tr>
+
+          </table>
+
+        </td>
+
+      </tr>
+
+      <tr>
+
+        <td colspan='2'>
+
+          <table class = 'noborder' style = "width:100%;">
+
+            <tr>
+
+              <td>
+
+    Interest will be chargeable on overdue bills @ 18% p.a.<br>
+
+    Subject to Mumbai Jurisdiction Only.
+
+              </td>
+
+            </tr>
+
+          </table>
+
+        </td>
+
+      </tr>
+
+    </table>
+
+  </body>
+
+</html>
+
+

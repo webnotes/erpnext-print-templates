@@ -1,0 +1,231 @@
+<!-- .cust_tbl { border-collapse:collapse; } .cust_tbl td { border:1px solid #848484; } --> <!--Other charges function-->
+<script type="text/javascript">// <![CDATA[
+    var make_row = function(title,val,bold){
+    var bstart = '<b>'; var bend = '</b>';
+    return '<tr><td style="width:50%">'+(bold?bstart:'')+title+(bold?bend:'')+'</td>'
+              +'<td style="width:20%;text-align:right">'+doc.currency+'</td>'
+              +'<td style="width:20%;text-align:right">'+val+'</td>'
+              +'</tr>'
+  }
+
+  function get_other_charges(){
+    var cl = getchildren('RV Tax Detail',doc.name,'other_charges');
+    var out='';
+    out +='<div><table class="noborder" style="width:100%">'
+          +make_row('Net Total',fmt_money(convert_rate(doc.net_total)),1);
+    if(cl.length){
+      for(var i=0;i<cl.length;i++){
+        out += make_row(cl[i].description,fmt_money(convert_rate(cl[i].tax_amount)),0);
+      }
+    }
+    out +=make_row('Grand Total',fmt_money(doc.grand_total_export),1)
+          +make_row('Rounded Total',fmt_money(doc.rounded_total_export),1)
+    out +='</table></div>'; 
+    return out;
+  }
+      
+  function get_letter_head(){
+    var cp = locals['Control Panel']['Control Panel'];
+  	if(cp.letter_head != 'None') {return cp.letter_head; }
+        else{ return ''};
+  }
+  
+  function convert_rate(val){
+    var new_val = flt(val)/flt(doc.conversion_rate);
+    return new_val;
+  }
+  
+  function get_transporter_details(){
+    var out = '';
+    if(doc.transporter_name || doc.lr_no || doc.lr_date){
+     out += '<div><table class="noborder" style="width:40%">'
+            +'<tr><td style="width:80%"><b>' + 'Transporter Details'+'</b></td><td style="width:20%"><br mce_bogus="1" /></td></tr>'
+
+     if(doc.transporter_name){ out += '<tr><td style="width:40%">' + 'Transporter Name'+'</td><td style="width:60%">'+doc.transporter_name+'</td></tr>'}
+     if(doc.lr_no){ out += '<tr><td style="width:40%">' + 'LR No'+'</td><td style="width:60%">'+doc.lr_no+'</td></tr>'}
+     if(doc.lr_date){ out += '<tr><td style="width:40%">' + 'LR Date'+'</td><td style="width:60%">'+doc.lr_date+'</td></tr>'}
+     out += '</table></div>'
+    }
+    return out;
+  }
+// ]]></script>
+<div style="border:0px solid black; padding:0px; font-family: 'Times New Roman', Times, serif; font-size: 12px;"><!--header-->
+<div>
+<table style="width: 100%;" border="1" cellspacing="2">
+<tbody>
+<tr style="border:1px solid black; padding:20px; font-family: 'Times New Roman', Times, serif; font-size: 10px; text-align: center;">
+<td style="text-align:left" width="30%"><strong>RANGE:</strong> III Bahadurgarh, SCF-41,Shopping<br /> Complex, Sector-6,Bahadurgarh. <br /> <strong>DIVISION:</strong> SONEPAT, Star House, <br /> Opp. Civil Hospital, Delhi-Sonepat Road,<br /> Sonepat, Haryana. <br /> <strong>COMM:</strong> DELHI-V (ROHTAK)</td>
+<td width="40%"><strong style="font-size: 15px;">DELIVERY NOTE</strong><strong style="font-size: 10px;"><br /> TIN NO:06651701608<br /> REGD NO:AAACR1567JXM001<br /> PAN NO:AAACR1567J<br /> S.TAX NO: AAACR1567JSD001<br /></strong></td>
+<td width="30%">
+<p>&nbsp;</p>
+</td>
+</tr>
+</tbody>
+</table>
+<table style="width: 100%;" border="1" cellspacing="2" cellpadding="0">
+<tbody>
+<tr>
+<td width="540"><strong style="font-size: 20px;">ROHIT INDUSTRIES GROUP (P) LTD.</strong></td>
+</tr>
+<tr>
+<td><strong style="font-size: 12px;">Registered Office: UG-10 Shivlok House No.2, Karampura Comm Complex, New Delhi 110015</strong><br /> <strong style="font-size: 12px;">Ph: +91-11-25920492, 41427321 Fax: +91-11-25920493</strong></td>
+</tr>
+<tr>
+<td><strong style="font-size: 11px;">Plant: 655-656 M.I.E Part-A, Bahadurgarh, Haryana 124507 </strong><strong style="font-size: 12px;">Ph: +91-1276-267253, 325887 <br /> Email: sales@rigpl.com Visit Us: www.rigpl.com</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div>
+<table style="width: 100%;" border="1">
+<tbody>
+<tr>
+<td width="34%" align="left"><strong>Ship To,</strong><br />
+<script type="text/javascript">// <![CDATA[
+doc.customer_name
+// ]]></script>
+<br />
+<script type="text/javascript">// <![CDATA[
+replace_newlines(doc.address_display)
+// ]]></script>
+</td>
+<td width="33%" align="left" valign="top">
+<table border="0">
+<tbody>
+<tr>
+<td><strong>PO No:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+doc.po_no
+// ]]></script>
+</td>
+</tr>
+<tr>
+<td><strong>PO Date:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+date.str_to_user(doc.po_date)
+// ]]></script>
+</td>
+</tr>
+<tr>
+<td><strong>Transporter:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+doc.transporter_name
+// ]]></script>
+</td>
+</tr>
+<tr>
+<td><strong>LR No.:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+doc.lr_no
+// ]]></script>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td width="33%" align="right" valign="top">
+<table border="0">
+<tbody>
+<tr>
+<td><strong>Delivery Note No.</strong></td>
+<td><strong>:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+doc.name
+// ]]></script>
+<br /></td>
+</tr>
+<tr>
+<td><strong><span style="font-weight: normal;"><strong>Delivery Note</strong></span>&nbsp;Date</strong></td>
+<td><strong>:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+date.str_to_user(doc.transaction_date)
+// ]]></script>
+<br /></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<br />
+<div><strong>KIND ATTN :
+<script type="text/javascript">// <![CDATA[
+doc.contact_person
+// ]]></script>
+</strong><br />
+<script type="text/javascript">// <![CDATA[
+replace_newlines(doc.note)
+// ]]></script>
+</div>
+<div>
+<script type="text/javascript">// <![CDATA[
+    var t = print_table('Delivery Note', doc.name, 'delivery_note_details', 'Delivery Note Detail', ['SR','description','qty', 'ref_rate','adj_rate','export_rate','export_amount'], ['Sr', 'Description','Qty','List Price','Disc %','Rate','Amount'], ['3%', '53%', '6%','10%','3%','10%', '15%'],'',class="cust_tbl")
+    if(t.appendChild) {
+      // single
+      out = t.innerHTML;
+    } 
+    else {//multiple
+      out = ''
+      for(var i=0;i<t.length;i++) {
+        if(i!=t.length-1){
+            out += '<div style:"padding-top:5px;"></div>' + t[i].innerHTML +'<div style="page-break-after:always" mce_style="page-break-after:always"></div>';
+        }
+        else out += '<div style:"padding-top:5px;"></div>' + t[i].innerHTML;
+      }
+    }
+    out;
+// ]]></script>
+</div>
+<!--Other charges table-->
+<div>
+<table style="width: 100%;" border="1" cellspacing="1">
+<tbody>
+<tr>
+<td style="width: 45%;">&nbsp;</td>
+<td style="width: 55%;">
+<script type="text/javascript">// <![CDATA[
+get_other_charges()
+// ]]></script>
+<br /></td>
+</tr>
+<tr>
+<td style="width: 35%;">&nbsp;</td>
+<td style="width: 65%;">
+<table style="width: 100%;" border="0">
+<tbody>
+<tr>
+<td style="width: 40%;"><strong>In Words</strong></td>
+<td style="width: 60%;">
+<script type="text/javascript">// <![CDATA[
+doc.in_words_export
+// ]]></script>
+<br /></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div>
+<script type="text/javascript">// <![CDATA[
+get_transporter_details()
+// ]]></script>
+</div>
+<div><br />
+<script type="text/javascript">// <![CDATA[
+replace_newlines(doc.concluding_note)
+// ]]></script>
+</div>
+<div><strong>for ROHIT INDUSTRIES GROUP (P) LTD</strong></div>
+<div><br /><br />(Authorised Signatory)</div>
+</div>

@@ -1,0 +1,134 @@
+<script type="text/javascript">// <![CDATA[
+// ********************************************** get other charges ************************************************** 
+  // -------------
+  // convert rate
+  // -------------
+  function convert_rate(val){
+    var new_val = flt(val)/flt(doc.conversion_rate);
+    return new_val;
+  }
+
+  // -----------------------
+  // make other charges row
+  // -----------------------
+  var make_ot_row = function(title, rate, val, type, top){
+    return '<tr><td style="position: absolute; top: '+top+'cm; left: 0cm; width: 8cm;">'+title+'</td>'
+              +'<td align="right" style="position: absolute; top: '+top+'cm; left: 6.63cm;">'+(type != 'Actual' ? rate+'%' : '')+'</td>'
+              +'<td align="right" style="position: absolute; top: '+top+'cm; left: 14.1cm;">'+val+'</td>'
+              +'</tr>'
+  }
+  
+  // ------------------
+  // get other charges
+  // ------------------
+  function get_other_charges(){
+    var cl = getchildren('RV Tax Detail',doc.name,'other_charges');
+    var out='';
+    out +='<table class="noborder" style="width:100%">'
+          +make_ot_row('Net Total','',fmt_money(convert_rate(doc.net_total)),'Actual',0);
+    var top = 0
+    if(cl.length){
+      for(var i=0;i<cl.length;i++){
+        out += make_ot_row(cl[i].description,cl[i].rate, fmt_money(convert_rate(cl[i].tax_amount)), cl[i].charge_type, top + 0.5);
+        top += 0.5;
+      }
+    }
+    out +=make_ot_row('Grand Total','', fmt_money(doc.grand_total_export), 'Actual', top+0.5)
+    out +='</table>'; 
+    return out;
+  }
+
+// ********************************************** get item details **************************************************
+  // ---------
+  // make row
+  // ---------
+  var make_row = function(val, top){
+    var bstart = '<b>'; var bend = '</b>';
+    return ret = '<tr><td style="position: absolute; top: '+top+'cm; left: 0cm;">'+cstr(val[0])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 1cm; width: 11.5cm; text-align: justify">'+cstr(val[1])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 12.6cm; width: 1cm; WORD-BREAK:BREAK-ALL;">'+cstr(val[2])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 15.9cm; width: 11cm">'+cstr(val[3])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 20cm;">'+cstr(val[4])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 21.5cm;">'+cstr(val[5])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 23.4cm;" text-align="right">'+cstr(val[6])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 26.7cm;" text-align="left">'+cstr(val[7])+'</td>'
+              +'<td style="position: absolute; top: '+top+'cm; left: 30cm;" text-align="right">'+cstr(val[8])+'</td>'
+              +'</tr>';
+  }
+
+  // -----------------
+  // get item details
+  // -----------------
+  function get_item_details(){
+    var cl = getchildren('Sales Order Detail',doc.name,'sales_order_details');
+    var out='';
+    out +='<table class="noborder" style="width:100%;">'
+    var start = 0;
+    if(cl.length){
+      for(var i=0;i<cl.length;i++){
+        out += make_row([cl[i].idx, cl[i].description, cl[i].rt_code, cl[i].item_name, cl[i].stock_uom, cl[i].qty, fmt_money(cl[i].export_rate), fmt_money(cl[i].adj_rate), fmt_money(cl[i].amount)], start);
+        start += 1.1;
+      }
+    }
+    out +='</table>'; 
+    return out;
+  }
+  
+// ]]></script>
+
+<div style="position: absolute; top: 5.75cm; left: 3.33cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.customer</script></div>
+<div style="position: absolute; top: 6.25cm; left: 3.33cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.customer_name</script></div>
+<div style="position: absolute; top: 6.75cm; left: 3.33cm; font-family:Draft 17 cpi;"><script type="text/javascript">replace_newlines(doc.address_display)</script></div>
+
+<div style="position: absolute; top: 6.25cm; left: 15cm; font-family:Draft 17 cpi;"><script type="text/javascript">replace_newlines(doc.address_display)</script></div>
+
+<div style="position: absolute; top: 2cm; left: 30cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.name</script></div>
+<div style="position: absolute; top: 2.5cm; left: 30cm; font-family:Draft 17 cpi;"><script type="text/javascript">date.str_to_user(doc.transaction_date)</script></div>
+
+<div style="position: absolute; top: 6.5cm; left: 25.8cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.your_order_number</script></div>
+<div style="position: absolute; top: 8cm; left: 25.8cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.offer_number</script></div>
+<div style="position: absolute; top: 9cm; left: 28.3cm; font-family:Draft 17 cpi;"><script type="text/javascript">date.str_to_user(doc.delivery_date)</script></div>
+
+
+<div style="position: absolute; top: 10cm; left: 4.2cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.cst_no</script></div>
+<div style="position: absolute; top: 11cm; left: 4.2cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.tin_no</script></div>
+<div style="position: absolute; top: 10.5cm; left: 12.1cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.inspection</script></div>
+<div style="position: absolute; top: 10cm; left: 20cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.freight</script></div>
+<div style="position: absolute; top: 11cm; left: 20cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.insurance</script></div>
+
+<div style="position: absolute; top: 10cm; left: 30.8cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.mode_of_dispatch</script></div>
+<div style="position: absolute; top: 11cm; left: 30.8cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.ecc_no</script></div>
+
+<div style="position: absolute; top: 12.5cm; left: 1.6cm; width: 13cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.payment_terms</script></div>
+<div style="position: absolute; top: 12.5cm; left: 25.8cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.special_instructions</script></div>
+
+
+<!-- Item Details -->
+<div style="position: absolute; top: 16cm; left: 1.6cm; font-family:Draft 17 cpi;">
+	<table style="width: 100%;">
+		<tbody>
+			<tr>
+				<td>
+					<script type="text/javascript">get_item_details()</script>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<!-- Other Charges -->
+<div style="position: absolute; top: 22cm; left: 19.2cm; font-family: Draft 17 cpi;">
+	<table style="width: 100%;">
+		<tbody>
+			<tr> 
+				<td>
+					<script type="text/javascript">get_other_charges()</script>
+				</td> 
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+
+<div style="position: absolute; top: 27.5cm; left: 5cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.branch</script></div>
+<div style="position: absolute; top: 27.5cm; left: 33cm; font-family:Draft 17 cpi;"><script type="text/javascript">doc.rounded_total_export</script></div>

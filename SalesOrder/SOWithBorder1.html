@@ -1,0 +1,273 @@
+<!-- .cust_tbl { border-collapse:collapse; } .cust_tbl td { border:1px solid #848484; } --> <!--Other charges function-->
+<script type="text/javascript">// <![CDATA[
+    var make_row = function(title,val,bold){
+    var bstart = '<b>'; var bend = '</b>';
+    return '<tr><td style="width:50%">'+(bold?bstart:'')+title+(bold?bend:'')+'</td>'
+              +'<td style="width:20%;text-align:right">'+doc.currency+'</td>'
+              +'<td style="width:20%;text-align:right">'+val+'</td>'
+              +'</tr>'
+  }
+
+  function get_other_charges(){
+    var cl = getchildren('RV Tax Detail',doc.name,'other_charges');
+    var out='';
+    out +='<div><table class="noborder" style="width:100%">'
+          +make_row('Net Total',fmt_money(convert_rate(doc.net_total)),1);
+    if(cl.length){
+      for(var i=0;i<cl.length;i++){
+        out += make_row(cl[i].description,fmt_money(convert_rate(cl[i].tax_amount)),0);
+      }
+    }
+    out +=make_row('Grand Total',fmt_money(doc.grand_total_export),1)
+          +make_row('Rounded Total',fmt_money(doc.rounded_total_export),1)
+    out +='</table></div>'; 
+    return out;
+  }
+      
+  function get_letter_head(){
+    var cp = locals['Control Panel']['Control Panel'];
+  	if(cp.letter_head !='None' && cp.letter_head !='') {return cp.letter_head; }
+  }
+  
+  function convert_rate(val){
+    var new_val = flt(val)/flt(doc.conversion_rate);
+    return new_val;
+  }
+// ]]></script>
+<div style="border:0px solid black; padding:0px; font-family: 'Times New Roman', Times, serif; font-size: 12px;"><!--header-->
+<div>
+<table style="width: 100%;" border="1" cellspacing="2">
+<tbody>
+<tr style="border:1px solid black; padding:20px; font-family: 'Times New Roman', Times, serif; font-size: 10px; text-align: center;">
+<td style="text-align:left" width="30%"><strong>RANGE:</strong> xxxxxx<br /> xxxxx, xxxxx<br /> <strong>DIVISION:</strong> xxxxx, <br /> xxxxx,<br /> xxxxx. <br /> <strong>COMM:</strong> xxxxx)</td>
+<td width="40%"><strong style="font-size: 15px;">SALES ORDER</strong><strong style="font-size: 10px;"><br /> TIN NO:xxxxx<br /> REGD NO:xxxxx<br /> PAN NO:xxxxx<br /> S.TAX NO: xxxxxxx<br /></strong></td>
+<td width="30%">
+<p>&nbsp;</p>
+</td>
+</tr>
+</tbody>
+</table>
+<table style="width: 100%;" border="1" cellspacing="2" cellpadding="0">
+<tbody>
+<tr>
+<td width="100%"><strong style="font-size: 20px;">COMPANY NAME</strong></td>
+</tr>
+<tr>
+<td><strong style="font-size: 12px;">Registered Office: xxxxxxxxxxxxxxxxx</strong><br /> <strong style="font-size: 12px;">Ph: xxxxxxxx Fax: xxxxxxxxxxxxx</strong></td>
+</tr>
+<tr>
+<td><strong style="font-size: 11px;">Plant: xxxxxxxxxxxxxxxxxxx </strong><strong style="font-size: 12px;">Ph: xxxxxxxxx7 <br /> Email: xxxxxxxxxm Visit Us: xxxxxxx</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div>
+<table style="width: 100%;" border="1" cellpadding="2">
+<tbody>
+<tr>
+<td width="33%" align="left">Bill To:<br />
+<script type="text/javascript">// <![CDATA[
+doc.customer_name
+// ]]></script>
+<br />
+<script type="text/javascript">// <![CDATA[
+replace_newlines(doc.address_display)
+// ]]></script>
+<table border="0">
+<tbody>
+<tr>
+<td><strong>TIN No</strong></td>
+<td><strong>:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+doc.tin_no
+// ]]></script>
+</td>
+</tr>
+<tr>
+<td><strong>Excise Regd No</strong></td>
+<td><strong>:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+doc.excise_number
+// ]]></script>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td width="33%" valign="top">Ship To:<br />
+<script type="text/javascript">// <![CDATA[
+doc.shipping_location
+// ]]></script>
+<br />
+<script type="text/javascript">// <![CDATA[
+replace_newlines(doc.shipping_address)
+// ]]></script>
+<table border="0">
+<tbody>
+<tr>
+<td><strong>TIN No</strong></td>
+<td><strong>:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+doc.shipping_tin_no
+// ]]></script>
+</td>
+</tr>
+<tr>
+<td><strong>Excise Regd No</strong></td>
+<td><strong>:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+doc.shipping_excise_no
+// ]]></script>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td width="34%" valign="top">
+<table border="0">
+<tbody>
+<tr>
+<td><strong>Sales Order No.</strong></td>
+<td><strong>:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+doc.name
+// ]]></script>
+<br /></td>
+</tr>
+<tr>
+<td><strong>Sales Order Date</strong></td>
+<td><strong>:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+date.str_to_user(doc.transaction_date)
+// ]]></script>
+<br /></td>
+</tr>
+<tr>
+<td><strong>P.O. No.</strong></td>
+<td><strong>:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+doc.po_no
+// ]]></script>
+<br /></td>
+</tr>
+<tr>
+<td><strong>P.O. Date</strong></td>
+<td><strong>:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+date.str_to_user(doc.po_date)
+// ]]></script>
+<br /></td>
+</tr>
+<tr>
+<td><strong>Exp Deliv Date</strong></td>
+<td><strong>:</strong></td>
+<td>
+<script type="text/javascript">// <![CDATA[
+date.str_to_user(doc.delivery_date)
+// ]]></script>
+<br /></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<br />
+<div><br />
+<script type="text/javascript">// <![CDATA[
+    var t = print_table('Sales Order', doc.name, 'sales_order_details', 'Sales Order Detail', ['SR','description','qty', 'ref_rate','adj_rate','export_rate','export_amount'], ['Sr', 'Description','Qty','List Price','Disc %','Rate','Amount'], ['3%', '53%', '6%','10%','3%','10%', '15%'],'',class="cust_tbl")
+    if(t.appendChild) {
+      // single
+      out = t.innerHTML;
+    } 
+    else {//multiple
+      out = ''
+      for(var i=0;i<t.length;i++) {
+        if(i!=t.length-1){
+          out += '<div style:"padding-top:5px;"></div>' + t[i].innerHTML +'<div style="page-break-after:always" mce_style="page-break-after:always"></div>';
+        }
+        else out += '<div style:"padding-top:5px;"></div>' + t[i].innerHTML;
+      }
+    }
+    out;
+// ]]></script>
+</div>
+<!--Other charges table-->
+<div>
+<table style="width: 100%;" border="1" cellpadding="2">
+<tbody>
+<tr>
+<td style="width: 45%;" align="left" valign="top"><strong>Terms &amp; Condition or Special Instructions:</strong><br />
+<script type="text/javascript">// <![CDATA[
+doc.terms
+// ]]></script>
+</td>
+<td style="width: 55%;">
+<script type="text/javascript">// <![CDATA[
+get_other_charges()
+// ]]></script>
+<br /></td>
+</tr>
+<tr>
+<td style="width: 35%;">&nbsp;</td>
+<td style="width: 65%;">
+<table border="0">
+<tbody>
+<tr>
+<td style="width: 40%;"><strong>In Words</strong></td>
+<td style="width: 60%;">
+<script type="text/javascript">// <![CDATA[
+doc.in_words
+// ]]></script>
+<br /></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div>
+<script type="text/javascript">// <![CDATA[
+    var t = print_table('Sales Order', doc.name, 'tc_details', 'TC Detail', ['SR', 'terms','description'], ['Sr', 'Terms', 'Description'], ['5%','35%', '60%'],'',class="cust_tbl")
+    var out = '';
+    if(t.appendChild) {
+      // single
+      //out = t.innerHTML;
+      if(t.innerHTML)
+        out += '<br><b>TERMS AND CONDITIONS : </b><br>' + t.innerHTML;
+    } 
+    else {//multiple
+      if(t){
+        out += '<br><b>TERMS AND CONDITIONS : </b><br>'
+        for(var i=0;i<t.length;i++) {
+          if(i!=t.length-1){
+            out += '<div style:"padding-top:5px;"></div>' + t[i].innerHTML +'<div style="page-break-after:always" mce_style="page-break-after:always"></div>';
+          }
+          else out += '<div style:"padding-top:5px;"></div>' + t[i].innerHTML;
+        }
+      }  
+    }
+ //   }
+    out;
+// ]]></script>
+</div>
+<div><br />
+<script type="text/javascript">// <![CDATA[
+replace_newlines(doc.concluding_note)
+// ]]></script>
+</div>
+<div><strong>for xxxxxxxxxxxx</strong></div>
+<div><br /><br />(Authorised Signatory)</div>
+</div>
