@@ -1,0 +1,191 @@
+<style>
+table.noborder td {
+   border: 0px solid #000 !important;
+}
+</style>
+
+<script  type="text/javascript">
+var make_row = function(title,val,bold){
+    var bstart = '<b>'; var bend = '</b>';
+    return '<tr><td class="noborder" style="width:50%">'+(bold?bstart:'')+title+(bold?bend:'')+'</td>'
+              +'<td class="noborder" style="width:20%";>'+doc.currency+'</td>'
+              +'<td class="noborder" style="width:30%;text-align:right">'+(val?val:'0.00')+'</td>'
+              +'</tr>'
+  }
+
+  function get_other_charges(){
+    var cl = getchildren('Purchase Tax Detail',doc.name,'purchase_tax_details');
+    
+    var out='';
+    out +='<div><table class="noborder" style="width:100%">'
+          +make_row('Net Total',fmt_money(convert_rate(doc.net_total)),1);
+    if(cl.length){
+      for(var i=0;i<cl.length;i++){
+        out += make_row(cl[i].description,fmt_money(convert_rate(cl[i].tax_amount)),0);
+      }
+    }
+    out += make_row('Grand Total',fmt_money(convert_rate(doc.grand_total)),1);
+    out +='</table></div>'; 
+    return out;
+    
+  }
+  
+  function convert_rate(val){    
+    var new_val = flt(val)/flt(doc.conversion_rate);
+    return new_val;
+  }
+</script>
+
+
+<head>
+	<!-- 
+	Sample Print Format for ERPNext. 
+	Please use at your own discretion.
+	For suggestions and contribution:
+	   https://github.com/webnotes/erpnext-print-templates 
+	Freely usable under MIT License.
+	-->
+<style>.noborder td { border: 0px solid #fff; } </style>
+</head>
+<body>
+<table class='simpletable' width='100%'>
+    <tr>
+      <td width="50%"><font size="4">PO No: <script>"<font size='4'>"+doc.name+"</font>"</script></font><br>
+		<script>if(doc.amended_from==null){}
+	else{"<font size='4'>"+"Amended PO No:"+doc.amended_from+"</font>"+"<br>"}</script>
+</span>
+	  </td>
+      <td width="50%">PO Date: <script>date.str_to_user(doc.transaction_date)</script><br>
+      <script>if(doc.amended_from==null){}
+else{"Amended Date:"+date.str_to_user(doc.amendment_date)+"<br>"}</script>
+      </td>
+    </tr>
+
+    
+    <tr>
+      <td width="50%">
+      <h4></h4>
+      <table class="noborder" style="width: 100%">
+          <tr>
+            <td style="width: 30%;">Supplier</td>
+            <td style="width: 70%;"><script>doc.supplier</script></td>
+          </tr>
+          <tr>
+            <td style="width: 30%;">Address</td>
+            <td style="width: 70%;">
+              <script>replace_newlines(doc.address_display)</script>
+            </td>
+          </tr>
+          <tr>
+            <td style="width: 30%;">Your Ref</td>
+            <td style="width: 70%;"><script>doc.supplier_ref</script></td>
+          </tr>
+      </table>
+      </td>
+      <td style="width: 50%;">
+      <h4>Details</h4>
+      <table class="noborder" style="width: 100%">
+          <tr>
+            <td style="width: 30%;">Remarks</td>
+            <td style="width: 70%;"><script>doc.remarks</script></td>
+          </tr>
+          <tr>
+            <td style="width: 30%;">Payment Terms</td>
+            <td style="width: 70%;"><script>doc.payment_terms</script></td>
+          </tr>
+          <tr>
+            <td style="width: 30%;">Currency</td>
+            <td style="width: 70%;"><script>doc.currency</script></td>
+          </tr>
+      </table>
+      </td>
+    </tr>
+
+  <tr>
+    <td colspan='2'>
+    <div>Please supply the under mentioned items on the following terms and conditions.
+    </div>
+
+    </td>
+  </tr>
+</table>
+
+<!-- table starts -->
+  
+<script>
+var out = '';
+var tl = print_table('Purchase Order', doc.name, 'po_details', 'PO Detail', ['SR', 'item_code', 'description', 'qty', 'uom', 'required_by','ref_rate','discount','import_rate', 'import_amount'], ['Sr', 'Item', 'Description', 'Qty', 'UOM', 'Del. Schedule','Ref Rate', 'Discount%','Rate','Amount'], ['5%', '10%', '50%', '8%', '7%', '14%', '8%', '8%', '8%', '12%']);
+
+if(tl.appendChild) {
+  out = tl.innerHTML;
+} else {
+  for(i in tl) {
+    out += tl[i].innerHTML;
+    out += '<div style="page-break-after: always;"></div>';
+  }
+}
+out;
+</script>
+
+<!-- table ends -->
+<table class='simpletable' width='100%'>
+  <tr>
+    <td width='60%'>
+     <script type="text/javascript">
+doc.terms</script>
+<br />
+<script type="text/javascript">//
+replace_newlines(doc.note)
+// ]]></script>
+</div>   
+    <td width='40%'>
+      <table class="noborder" style="width: 100%">
+        <script>
+			get_other_charges();
+		</script>
+         
+          
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td colspan='2'>
+    <table class='noborder'>
+      <tr>
+      <td style="width: 40%;">
+<div style="font-size: 8px;">VAT TIN: xx<br>
+<div style="font-size: 8px;">CST TIN: xx<br>
+<div style="font-size: 8px;">RANGE: xx<br>
+<div style="font-size: 8px;">COLLECTORATE: xx<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div style="font-size: 12px;">Prepared By</td>
+      <td style="width: 39%;">
+<div style="font-size: 8px;">ECC Code No: xx<br>
+<div style="font-size: 8px;">TIN No: xx<br>
+<div style="font-size: 8px;">CST No: xx<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div style="font-size: 12px;">Chechked by</td>
+      <td style="width: 25%;"><B>
+For xx<br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+Authorized Signatory</td>
+      </tr>
+    </table>
+    </td>
+  </tr>
+</table>
+<div style="font-size: x-small;"></div>
