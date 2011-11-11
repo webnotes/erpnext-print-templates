@@ -139,12 +139,12 @@
 			} else {
 				out = '';
 				for(var i=0; i < (table.length-1); i++) {
-					out += table[i] + 
+					out += table[i].innerHTML + 
 						'<div style = "page-break-after: always;" \
 						class = "page_break"></div>\
 						<div class="page-settings"></div>';
 				}
-				out += table[table.length-1];
+				out += table[table.length-1].innerHTML;
 			}
 			return out;
 		},

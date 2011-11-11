@@ -114,13 +114,13 @@
 	si_std = {
 		print_item_table: function() {
 			var table = print_table(
-				'Delivery Note',
+				'Purchase Order',
 				doc.name,
-				'delivery_note_details',
-				'Delivery Note Detail',
+				'po_details',
+				'PO Detail',
 				[// Here specify the table columns to be displayed
 					'SR', 'item_code', 'item_name', 'description', 'qty', 'stock_uom',
-					'basic_rate', 'amount'
+					'import_rate', 'import_amount'
 				],
 				[// Here specify the labels of column headings
 					'Sr', 'Item Code', 'Item Name', 'Description', 'Qty',
@@ -129,23 +129,7 @@
 				[// Here specify the column widths
 					'3%', '10%', '15%', '32%', '5%',
 					'5%', '15%', '15%'
-				],
-				null,
-				null,
-				{
-					'description' : function(data_row) {
-						if(data_row.serial_no) {
-							return (
-								data_row.description + 
-								'<div style="padding-left: 15px;"><i>Serial No.:' + 
-								((data_row.serial_no.indexOf('\n')>-1)?'<br />':'&nbsp;') + 
-								data_row.serial_no + '</i></div>'
-							);
-						} else {
-							return data_row.description;
-						}
-					}
-				}
+				]
 			);
 
 			// This code takes care of page breaks
@@ -154,26 +138,26 @@
 			} else {
 				out = '';
 				for(var i=0; i < (table.length-1); i++) {
-					out += table[i] + 
+					out += table[i].innerHTML + 
 						'<div style = "page-break-after: always;" \
 						class = "page_break"></div>\
 						<div class="page-settings"></div>';
 				}
-				out += table[table.length-1];
+				out += table[table.length-1].innerHTML;
 			}
 			return out;
 		},
 
 
 		print_other_charges: function(parent) {
-			var oc = getchildren('RV Tax Detail', doc.name, 'other_charges');
+			var oc = getchildren('Purchase Tax Detail', doc.name, 'purchase_tax_details');
 			var rows = '<table width=100%>\n';
 			for(var i=0; i<oc.length; i++) {
 				rows +=
 					'<tr>\n' +
 						'\t<td>' + oc[i].description + '</td>\n' +
 						'\t<td></td>\n' +
-						'\t<td width=38%>' + fmt_money(oc[i].tax_amount) + '</td>\n' +
+						'\t<td width=38%>' + fmt_money(oc[i].tax_amount / (doc.conversion_rate || 1)) + '</td>\n' +
 					'</tr>\n';
 			}
 			return rows + '</table>\n';
@@ -198,7 +182,7 @@
 	-->
 	<table class='header-table' cellspacing=0>
 		<thead>
-			<tr><td colspan=2><h1>Delivery Note</h1></td></tr>
+			<tr><td colspan=2><h1>Purchase Order</h1></td></tr>
 			<tr><td colspan=2><h3><script>cur_frm.docname</script></h3></td></tr>
 		</thead>
 		<tbody>
@@ -206,7 +190,7 @@
 				<td width=60%><table width=100% cellspacing=0><tbody>
 					<tr>
 						<td width=22%><b>Name</b></td>
-						<td><script>doc.customer_name</script></td>
+						<td><script>doc.supplier_name</script></td>
 					</tr>
 					<tr>
 						<td><b>Address</b></td>
@@ -219,15 +203,8 @@
 				</tbody></table></td>
 				<td><table width=100% cellspacing=0><tbody>
 					<tr>
-						<td width=63%><b>Delivery Note Date</b></td>
+						<td width=63%><b>Purchase Order Date</b></td>
 						<td><script>date.str_to_user(doc.transaction_date)</script></td>
-					<tr>					
-					<tr>
-						<td><b>Sales Order No.</b></td>
-						<td>
-							<script>doc.sales_order_no</script><br />
-							<i>(<script>date.str_to_user(doc.posting_date)</script>)</i>
-						</td>
 					<tr>					
 				</tbody></table></td>
 			</tr>
@@ -269,27 +246,20 @@
 							<td>Net Total</td>
 							<td></td>
 							<td width=38%><script>
-								fmt_money(doc.net_total)
+								fmt_money(doc.net_total_import)
 							</script></td>
 						</tr>
 						<tr><td colspan=3><script>si_std.print_other_charges()</script></td></tr>
-						<tr>
-							<td>Grand Total</td>
-							<td></td>
-							<td><script>
-								fmt_money(doc.grand_total_export)
-							</script></td>
-						</tr>
 						<tr style='font-weight: bold'>
-							<td>Rounded Total</td>
+							<td>Grand Total</td>
 							<td><script>doc.currency</script></td>
 							<td><script>
-								fmt_money(doc.rounded_total_export)
+								fmt_money(doc.grand_total_import)
 							</script></td>
 						</tr>
 					</tbody></table>
 					<br /><b>In Words</b><br />
-					<i><script>doc.in_words_export</script></i>
+					<i><script>doc.in_words_import</script></i>
 				</td>
 			</tr>		
 		</tbody>
