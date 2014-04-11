@@ -1,4 +1,4 @@
-# Print Templates for ERPNext
+## Archive: This project is deprecated.
 
 These templates are only for reference. If you create new templates, please contribute.
 Many of them may be in bad condition, we hope to add screenshots and improve commenting
