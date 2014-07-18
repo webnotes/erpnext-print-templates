@@ -1,0 +1,339 @@
+<!--
+	Sample Print Format for ERPNext
+	Please use at your own discretion
+	For suggestions and contributions:
+		https://github.com/frappe/erpnext-print-templates
+
+	Freely usable under MIT license
+-->
+
+<!-- Style Settings -->
+<style>
+	/*
+		common style for whole page
+		This should include:
+		+ page size related settings
+		+ font family settings
+		+ line spacing settings
+	*/
+	@media screen {
+		body {
+			width: 8.3in;
+		}
+	}
+
+	html, body, div, span, td {
+		font-family: "Helvetica", "Arial", sans-serif;
+		font-size: 8px;
+	}
+
+	body {
+		padding: 5px;
+		margin: auto;
+		font-size: 8px;
+        line-height: 100%;
+	}
+
+	.common {
+		font-family: "Helvetica", "Arial", sans-serif !important;
+		font-size: 8px;
+		padding: 5px 5px;
+	}
+
+	table {
+		border-collapse: collapse;
+		width: 100%;
+		vertical-align: top;
+		
+	}
+
+	table td {
+		padding: 5px 5px;
+		
+
+	}
+	
+	table h1, h2, h3, h4, h5, h6 {
+		padding: 5px;
+		margin: 0px;
+		
+	}
+
+	table.header-table td {
+		vertical-align: top;
+		
+	}
+
+	table.header-table h1 {
+		text-transform: uppercase;
+		!color: white;
+		font-size: 30px;
+		font-style: italic;
+		
+	}
+
+	table.header-table thead tr:nth-child(1) div {
+		height: 20px;
+		!background-color: #696969;
+		vertical-align: middle;
+		padding: 5px 0px 0px 0px;
+		width: 100%;
+		
+	}
+
+	div.page-body table td:nth-child(6),
+	div.page-body table td:nth-child(7) {
+		text-align: right;
+	}
+
+	div.page-body table tr td {
+		!background-color: #DCDCDC !important;
+	}
+
+	div.page-body table tr:nth-child(1) td {
+		!background-color: #696969 !important;
+		color: white !important;
+	}
+
+	table.footer-table td {
+		vertical-align: top;
+	}
+
+	table.footer-table td table td:nth-child(2),
+	table.footer-table td table td:nth-child(3) {
+		text-align: right;
+	}
+
+	table.footer-table tfoot td {
+		!background-color: #696969;
+		height: 5px;
+	}
+
+	.imp-details {
+		!background-color: #DCDCDC;
+	}
+</style>
+
+
+<!-- Javascript -->
+<script>
+	si_std = {
+		print_item_table: function() {
+			var table = print_table(
+				'Sales Invoice',
+				doc.name,
+				'entries',
+				'Sales Invoice Item',
+				[// Here specify the table columns to be displayed
+					'SR', 'item_name', 'description', 'color', 'qty', 'stock_uom',
+					'rate', 'amount'
+				],
+				[// Here specify the labels of column headings
+					'Sr', 'Item Name', 'Description','Color', 'Qty',
+					'UoM', 'Basic Rate', 'Amount'
+				],
+				[// Here specify the column widths
+					'3%', '15%', '35%','5%', '7%',
+					'5%', '15%', '15%'
+				],
+				null,
+				null,
+				{
+					'description' : function(data_row) {
+						if(data_row.discount_percentage) {
+							var to_append = '<div style="padding-left: 5px;"><i>Discount: ' + 
+								data_row.discount_percentage + '% on ' + 
+								format_currency(data_row.price_list_rate, doc.currency) + '</i></div>';
+							if(data_row.description.indexOf(to_append)==-1) {
+								return data_row.description + to_append;
+							} else { return data_row.description; }
+						} else {
+							return data_row.description;
+						}
+					}
+				}
+			);
+
+			// This code takes care of page breaks
+			if(table.appendChild) {
+				out = table.innerHTML;
+			} else {
+				out = '';
+				for(var i=0; i < (table.length-1); i++) {
+					out += table[i].innerHTML + 
+						'<div style = "page-break-after: always;" \
+						class = "page_break"></div>\
+						<div class="page-settings"></div>';
+				}
+				out += table[table.length-1].innerHTML;
+			}
+			return out;
+		},
+
+
+		print_other_charges: function(parent) {
+			var oc = getchildren('Sales Taxes and Charges', doc.name, 'other_charges');
+			var rows = '<table width=100%>\n';
+			for(var i=0; i<oc.length; i++) {
+				if(!oc[i].included_in_print_rate) {
+					rows +=
+						'<tr>\n' +
+							'\t<td style="text-align: right;">' + oc[i].description +': ' + format_currency(oc[i].tax_amount, doc.currency) + '</td>\n' +
+						'</tr>\n';
+				}
+			}
+
+			if(doc.discount_amount) {
+				rows += '<tr>\n' + 
+						'\t<td>Discount Amount</td>\n' + 
+						'\t<td style="width: 38%; text-align: left;">' + format_currency(doc.discount_amount, doc.currency) + '</td>\n' + 
+					'</tr>\n';
+			}
+
+			return rows + '</table>\n';
+		}
+	};
+</script>
+
+
+<!-- Page Layout Settings -->
+<div class='common page-header'>
+	<!-- 
+		Page Header will contain
+			+ table 1
+				+ table 1a
+					- Name
+					- Address
+					- Contact
+					- Mobile No
+				+ table 1b
+					- Voucher Date
+					- Due Date
+	-->
+
+
+
+<table border="1" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" vertical-align: top>
+<tr style="text-align:center"><td colspan=4><div><script>'<h1>' + (doc.select_print_heading || 'Invoice') + '</h1>'</script></div></td></tr>
+	 
+<tr>
+    		<td width="50%" colspan="2" rowspan="3" valign="top" style='padding-left: 10px;'> Exporter: <b>SURENDRI DESIGN PVT. LTD. </b>
+<br>VPO SUKHRALI
+<br>GURGAON, HARYANA 122001
+<br>Ph: 0124-2343493
+</td>
+<td width="25%" valign="middle" style='padding-left: 10px;'>Invoice No.: <script>cur_frm.docname</script></td>
+<td width="25%" valign="middle" style='padding-left: 10px;'>Date: <script>date.str_to_user(doc.posting_date)</script></td>
+</tr>
+<tr>
+<td width="50%" colspan="2" valign="middle" style='padding-left: 10px;'>Order No.: <script type="text/javascript"> doc.po_no </script>
+</td>
+</tr>
+<tr>
+<td width="50%" colspan="2" valign="middle" style='padding-left: 10px;'>Order Ref:
+</td>
+</tr>
+<tr>
+<td width="50%" colspan="2" valign="top" style='padding-left: 10px;'>Consignee:<b> <script>doc.customer_name</script></b> <p><script>replace_newlines(doc.address_display)</script> </p>  <p> Kind Attn: <script>doc.contact_display</script> </p>
+</td>
+<td width="50%" colspan="2" valign="top" style='padding-left: 10px;'>Buyer (if other than consignee)
+</td>
+</tr>
+<tr>
+<td width="25%" valign="top" style='padding-left: 10px;'>Pre-carriage by: <script>doc.pre_carriage_by</script></td>
+<td width="25%" valign="top" style='padding-left: 10px;'>Place of receipt by pre carrier:<script>doc.place_of_receipt_by_pre_carrier</script></td>
+<td width="25%" valign="top" style='padding-left: 10px;'>Country of Origin of Goods:<script>doc.country_of_origin</script></td>
+<td width="25%" valign="top" style='padding-left: 10px;'>Country of Final Destination:<script>doc.country_of_destination</script></td>
+</tr>
+<tr>
+<td width="25%" valign="top" style='padding-left: 10px;'>Vessel/Flight no.:<script>doc.vessel_or_flight_no</script></td>
+<td width="25%" valign="top" style='padding-left: 10px;'>Port of Loading:<script>doc.port_of_loading</script></td>
+<td width="25%" valign="top" style='padding-left: 10px;'>Terms of Delivery:</td>
+<td width="25%" valign="top" style='padding-left: 10px;'>&nbsp;</td>
+</tr>
+<tr>
+<td width="25%" valign="top" style='padding-left: 10px;'>Port of Discharge / Final Destination:<script>doc.port_of_discharge</script></td>
+<td width="25%" valign="top" style='padding-left: 10px;'>&nbsp;</td>
+<td width="25%" valign="top" style='padding-left: 10px;'>Terms of Payment:</td>
+<td width="25%" valign="top" style='padding-left: 10px;'>&nbsp;</td>
+</tr>
+</table>
+
+	
+</div>
+<div class='common page-body'>
+	<!-- 
+		Page Body will contain
+			+ table 2
+				- Sales Invoice Data
+	-->
+	<script>si_std.print_item_table()</script>
+</div>
+<div class='common page-footer'>
+	<!-- 
+		Page Footer will contain
+			+ table 3
+				- Terms and Conditions
+				- Total Rounded Amount Calculation
+				- Total Rounded Amount in Words
+	-->
+<table class='footer-table' width=100% cellspacing=0>
+	<thead>
+			
+	</thead>
+	<tbody>
+		<tr>
+<td style="text-align: left;">Net Weight </td>
+
+			<td style="text-align: right; padding-right: 10px;">Net Total: <script>format_currency(doc.net_total_export, doc.currency)</script></td>
+		</tr>
+		<tr>
+<td style="text-align: left;">Gross Weight </td>
+<td style="text-align: right; padding-right: 10px;"><script>si_std.print_other_charges()</script></td>
+</tr>
+		
+<tr>
+<td style="text-align: left;" >PAN No: AATCS1053M</td>
+<td style="text-align: right; padding-right: 10px;">Grand Total: <script>format_currency(doc.grand_total_export, doc.currency) </script></td>
+		</tr>
+<tr >
+<td style="text-align: left;" >TIN No: 06211835322</td>
+<td style="text-align: right; padding-right: 10px;"><b>Rounded Total: <script>format_currency(doc.rounded_total_export, doc.currency) </script></b></td>
+		</tr>
+<tr>
+
+</tr>
+		<tr style='font-weight: bold' class='imp-details'>
+			<td colspan="2" style="text-align: right; padding-right: 10px;" >In Words: <i><script>doc.in_words_export</script></i></td>
+		</tr>
+<tr>
+<td colspan=2 width="100%"><div style="height:15px"></div></td>
+</tr> 
+<tr>
+<td colspan=2 style="width: 100%; text-align: left"> Declaration: We declare this invoice shows the actual description of the goods described and that the particulars are true and correct.</td>
+</tr>
+<tr>
+<td colspan=2 width="100%"><div style="height:15px"></div></td>
+</tr>
+<tr>
+<td width="70%" valign="top" style='padding-left: 10px;'> ITC H.S. CODE:</td>
+
+<td width="30%" valign="top" style='padding-right: 10px; text-align: right;' >Signature & Date</td>
+</tr>
+<tr>
+<td colspan=2 width="100%"><div style="height:15px"></div></td>
+</tr>
+<tr>
+
+<td width="70%" valign="top" style='padding-left: 10px;'> *Exempted under Notification No. 30/2004-CE as amended by Notification No. 11/2013-CE</td>
+<td width="30%" valign="bottom" style='padding-right: 10px; text-align: right;'><p></p><p>Authorised Signatory</p></td>
+</tr>
+	</tbody>
+	<tfoot>
+		
+	</tfoot>
+</table>
+
+
+
+</div>
